@@ -1,4 +1,4 @@
 # Advent of Code
-My solutions to the challenged at https://adventofcode.com/.
+My solutions to the challenges at https://adventofcode.com/.
 
 
