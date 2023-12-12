@@ -1,5 +1,3 @@
-use core::num;
-
 
 fn matches_pattern(line : &Vec<char>, pattern: &Vec<usize>) -> bool {
     let mut current_char = 0usize;
@@ -80,7 +78,8 @@ fn solve_line(line : &str) -> usize {
         }
         //println!();
     }
-    // println!("Matches: {}",valid_permutations);
+    println!("{} => {}",line,valid_permutations);
+
     return valid_permutations;
 }
 
@@ -95,9 +94,9 @@ fn main() {
     let input = include_str!("../../input.txt");
     let result = solve(input);
     println!("Result1: {}",result);
-    let input = include_str!("../../input2.txt");
-    let result = solve(input);
-    println!("Result2: {}",result);
+    //let input = include_str!("../../input2.txt");
+    //let result = solve(input);
+    //println!("Result2: {}",result);
 }
 
 
