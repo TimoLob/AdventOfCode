@@ -104,7 +104,6 @@ fn find_horizontal_symmetry(grid: &Grid) -> Option<usize> {
                     if differences > 1 {
                         return false;
                     }
-                    //return false;
                 }
                 left += 1;
                 right -= 1;
@@ -119,7 +118,7 @@ fn find_horizontal_symmetry(grid: &Grid) -> Option<usize> {
 }
 
 fn find_vertical_symmetry(grid: &Grid) -> Option<usize> {
-    // Find horizontal symmetry axis
+    // Find vertical symmetry axis
     for axis in 1..grid.height {
         // Check if x is a possible symmetry axis
         let dy = (grid.height - axis).min(axis);
