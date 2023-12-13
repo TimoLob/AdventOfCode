@@ -40,7 +40,10 @@ def prepare_line(line:str):
     line = line.strip()
     input, pattern = line.split(" ")
     pattern = [int(x) for x in pattern.split(',')]
+    #return input,tuple(pattern) # Task 1
     return ((input+'?')*5)[:-1],tuple(pattern*5)
+
+
 def solve():
     with open("input.txt") as input:
         lines = input.readlines()
