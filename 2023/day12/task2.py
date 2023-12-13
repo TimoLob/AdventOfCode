@@ -3,7 +3,7 @@ import functools
 from typing import Tuple
 
 @functools.cache
-def find_permutations(remaining_input : str, remaining_pattern:Tuple[int, ...], current_defects):
+def find_permutations(remaining_input : str, remaining_pattern:Tuple[int, ...], current_defects:int):
     # print(remaining_input,remaining_pattern,current_defects)
     if len(remaining_input)==0:
         if len(remaining_pattern) == 0:
