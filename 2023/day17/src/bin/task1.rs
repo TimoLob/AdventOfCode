@@ -1,144 +1,36 @@
-use core::fmt;
-use petgraph::{data::Build, dot::Dot, graph::Node, stable_graph::NodeIndex, Graph};
-use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
+/*
+Example Input :
+2413432311323
+3215453535623
+3255245654254
+3446585845452
+4546657867536
+1438598798454
+4457876987766
+3637877979653
+4654967986887
+4564679986453
+1224686865563
+2546548887735
+4322674655533
 
-struct Point {
-    x: i32,
-    y: i32,
-}
+Each city block is marked by a single digit that represents the amount of heat loss if the crucible enters that block. The starting point, the lava pool, is the top-left city block; the destination, the machine parts factory, is the bottom-right city block. (Because you already start in the top-left block, you don't incur that block's heat loss unless you leave that block and then return to it.)
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+Because it is difficult to keep the top-heavy crucible going in a straight line for very long, it can move at most three blocks in a single direction before it must turn 90 degrees left or right. The crucible also can't reverse direction; after entering each city block, it may only turn left, continue straight, or turn right.
+
+Directing the crucible from the lava pool to the machine parts factory, but not moving more than three consecutive blocks in the same direction, what is the least heat loss it can incur?
+*/
+
+use std::collections::{HashMap, HashSet, VecDeque};
+
+use petgraph::{stable_graph::NodeIndex, Graph};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum Direction {
     North,
     East,
     West,
     South,
-}
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-struct State {
-    dist: i32,
-    position: NodeIndex,
-}
-
-impl Ord for State {
-    fn cmp(&self, other: &Self) -> Ordering {
-        other
-            .dist
-            .cmp(&self.dist)
-            .then_with(|| self.position.cmp(&other.position))
-    }
-}
-
-impl PartialOrd for State {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl fmt::Display for Direction {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Direction::North => "N",
-                Direction::East => "E",
-                Direction::West => "W",
-                Direction::South => "S",
-            }
-        )
-    }
-}
-
-fn solve(input: &str) -> i32 {
-    let (graph, nodes) = parse(input);
-
-    return dijkstra(graph, nodes);
-}
-
-fn dijkstra(graph: Graph<i32, Direction>, nodes: Vec<Vec<NodeIndex>>) -> i32 {
-    let mut dist: HashMap<NodeIndex, i32> = HashMap::new();
-    let mut prev: HashMap<NodeIndex, Option<NodeIndex>> = HashMap::new();
-    let width = nodes[0].len();
-    let height = nodes.len();
-    let start = nodes[0][0];
-    let target = nodes[height - 1][width - 1];
-    let mut pq: BinaryHeap<State> = BinaryHeap::new();
-    for row in nodes.iter() {
-        for &index in row {
-            dist.insert(index, i32::MAX);
-            prev.insert(index, None);
-            if index == start {
-                dist.insert(index, 0);
-            }
-            pq.push(State {
-                dist: dist[&index],
-                position: index,
-            });
-        }
-    }
-
-    while !pq.is_empty() {
-        let u = pq.pop().expect("PQ should always have one element here");
-        let u_index = u.position;
-        // Get Last 3 directions
-        let mut last_directions = Vec::with_capacity(3);
-        let mut current = u_index;
-        let mut current_prev: NodeIndex;
-        for _ in 0..3 {
-            let opt = prev[&current];
-            if opt.is_none() {
-                break;
-            }
-            current_prev = opt.unwrap();
-            let edge = graph
-                .find_edge(current_prev, current)
-                .expect("Should be valid edge");
-            let dir = graph.edge_weight(edge).expect("Edge should have weight");
-            last_directions.push(*dir);
-            current = current_prev;
-        }
-        let mut invalid_direction: Option<Direction> = None;
-        if last_directions.len() == 3
-            && last_directions[0] == last_directions[1]
-            && last_directions[1] == last_directions[2]
-        {
-            invalid_direction = Some(last_directions[0]);
-        }
-
-        for v in graph.neighbors(u_index) {
-            let edge = graph
-                .find_edge(u_index, v)
-                .expect("Should be an edge since neightbors");
-            let edge_dir = graph.edge_weight(edge).unwrap();
-            if invalid_direction.is_some_and(|x| x == *edge_dir) {
-                continue;
-            }
-            let alt = dist[&u_index] + graph.node_weight(v).expect("Node should have weight");
-            if alt < dist[&v] {
-                dist.insert(v, alt);
-                prev.insert(v, Some(u_index));
-                pq.retain(|x| x.position != v);
-                pq.push(State {
-                    dist: alt,
-                    position: v,
-                });
-                //println!("{:?}", pq);
-            }
-        }
-    }
-    println!("{:?}", dist);
-    println!("{:?}", prev);
-    let mut current = target;
-    print!("{:?}->", current);
-    while let Some(p) = prev[&current] {
-        let cost = graph.node_weight(p).expect("msg");
-        print!("{:?}[{}]->", p, cost);
-        current = p;
-    }
-    println!();
-    return dist[&target];
 }
 
 fn parse(input: &str) -> (Graph<i32, Direction>, Vec<Vec<NodeIndex>>) {
@@ -182,9 +74,76 @@ fn parse(input: &str) -> (Graph<i32, Direction>, Vec<Vec<NodeIndex>>) {
     (graph, nodes)
 }
 
+fn solve(input: &str) -> i32 {
+    let (graph, nodes) = parse(input);
+
+    let width = nodes[0].len();
+    let height = nodes.len();
+    explore(
+        &graph,
+        nodes[0][0],
+        nodes[height - 1][width - 1],
+        0,
+        &VecDeque::new(),
+        &mut HashSet::new(),
+    )
+}
+
+fn explore(
+    graph: &Graph<i32, Direction>,
+    start: NodeIndex,
+    target: NodeIndex,
+    dist: i32,
+    last_directions: &VecDeque<Direction>,
+    visited: &mut HashSet<(NodeIndex, Direction)>,
+) -> i32 {
+    if start == target {
+        return dist;
+    }
+    let mut invalid_directions = vec![];
+    if let Some(last_direction) = last_directions.back() {
+        if visited.contains(&(start, *last_direction)) {
+            return i32::MAX;
+        }
+        visited.insert((start, *last_directions.back().unwrap()));
+        invalid_directions.push(*last_direction);
+    }
+    if last_directions.len() == 3
+        && last_directions[0] == last_directions[1]
+        && last_directions[1] == last_directions[2]
+    {
+        invalid_directions.push(last_directions[0]);
+    }
+
+    let mut smallest_distance: i32 = i32::MAX;
+    for neighbor in graph.neighbors(start) {
+        let edge = graph.find_edge(start, neighbor).unwrap();
+        let direction = graph.edge_weight(edge).unwrap();
+        if invalid_directions.contains(direction) {
+            continue;
+        }
+        let current_distance = dist + graph.node_weight(neighbor).expect("Neighbor ndoe weight");
+        let mut last_directions = last_directions.clone();
+        last_directions.pop_front();
+        last_directions.push_back(*direction);
+        let d = explore(
+            graph,
+            neighbor,
+            target,
+            current_distance,
+            &last_directions,
+            visited,
+        );
+        if d < smallest_distance {
+            smallest_distance = d;
+        }
+    }
+    smallest_distance
+}
+
 fn main() {
     println!("Hello, world!");
-    let input = include_str!("../../input.txt");
+    let input = include_str!("../../example.txt");
     let result = solve(input);
     println!("Result : {}", result);
 }
