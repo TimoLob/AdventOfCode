@@ -31,6 +31,7 @@ enum Direction {
     East,
     West,
     South,
+    Nothing,
 }
 
 fn parse(input: &str) -> (Graph<i32, Direction>, Vec<Vec<NodeIndex>>) {
@@ -84,8 +85,9 @@ fn solve(input: &str) -> i32 {
         nodes[0][0],
         nodes[height - 1][width - 1],
         0,
-        &VecDeque::new(),
-        &mut HashSet::new(),
+        Direction::Nothing,
+        0,
+        &mut HashMap::new(),
     )
 }
 
@@ -94,25 +96,26 @@ fn explore(
     start: NodeIndex,
     target: NodeIndex,
     dist: i32,
-    last_directions: &VecDeque<Direction>,
-    visited: &mut HashSet<(NodeIndex, Direction)>,
+    last_direction: Direction,
+    same_dir_steps: i32,
+    cache: &mut HashMap<(NodeIndex, Direction, i32), Option<i32>>,
 ) -> i32 {
     if start == target {
         return dist;
     }
     let mut invalid_directions = vec![];
-    if let Some(last_direction) = last_directions.back() {
-        if visited.contains(&(start, *last_direction)) {
-            return i32::MAX;
+
+    if cache.contains_key(&(start, last_direction, same_dir_steps)) {
+        //println!("Cache Hit {:?}", cache);
+        if let Some(result) = cache[&(start, last_direction, same_dir_steps)] {
+            return result;
         }
-        visited.insert((start, *last_directions.back().unwrap()));
-        invalid_directions.push(*last_direction);
+        return i32::MAX;
     }
-    if last_directions.len() == 3
-        && last_directions[0] == last_directions[1]
-        && last_directions[1] == last_directions[2]
-    {
-        invalid_directions.push(last_directions[0]);
+    cache.insert((start, last_direction, same_dir_steps), None);
+
+    if same_dir_steps == 3 {
+        invalid_directions.push(last_direction);
     }
 
     let mut smallest_distance: i32 = i32::MAX;
@@ -123,21 +126,28 @@ fn explore(
             continue;
         }
         let current_distance = dist + graph.node_weight(neighbor).expect("Neighbor ndoe weight");
-        let mut last_directions = last_directions.clone();
-        last_directions.pop_front();
-        last_directions.push_back(*direction);
+        let same_steps: i32 = if *direction == last_direction {
+            same_dir_steps + 1
+        } else {
+            0
+        };
         let d = explore(
             graph,
             neighbor,
             target,
             current_distance,
-            &last_directions,
-            visited,
+            *direction,
+            same_steps,
+            cache,
         );
         if d < smallest_distance {
             smallest_distance = d;
         }
     }
+    cache.insert(
+        (start, last_direction, same_dir_steps),
+        Some(smallest_distance),
+    );
     smallest_distance
 }
 
