@@ -1,37 +1,87 @@
-/*
-Example Input :
-2413432311323
-3215453535623
-3255245654254
-3446585845452
-4546657867536
-1438598798454
-4457876987766
-3637877979653
-4654967986887
-4564679986453
-1224686865563
-2546548887735
-4322674655533
-
-Each city block is marked by a single digit that represents the amount of heat loss if the crucible enters that block. The starting point, the lava pool, is the top-left city block; the destination, the machine parts factory, is the bottom-right city block. (Because you already start in the top-left block, you don't incur that block's heat loss unless you leave that block and then return to it.)
-
-Because it is difficult to keep the top-heavy crucible going in a straight line for very long, it can move at most three blocks in a single direction before it must turn 90 degrees left or right. The crucible also can't reverse direction; after entering each city block, it may only turn left, continue straight, or turn right.
-
-Directing the crucible from the lava pool to the machine parts factory, but not moving more than three consecutive blocks in the same direction, what is the least heat loss it can incur?
-*/
-
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::{
+    cmp,
+    collections::{BinaryHeap, HashMap},
+};
 
 use petgraph::{stable_graph::NodeIndex, Graph};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum Direction {
     North,
+    South,
     East,
     West,
-    South,
-    Nothing,
+}
+
+fn dijkstra(graph: &Graph<i32, Direction>, start: NodeIndex, target: NodeIndex) -> i32 {
+    let mut priority_queue = BinaryHeap::new();
+    let mut dist = HashMap::new();
+    let mut prev = HashMap::new();
+
+    dist.insert(start, 0);
+    prev.insert(start, None);
+    // PQ ((negative) distance from start, nodeindex, direction, same_steps)
+    priority_queue.push((0, start, Direction::South, 0));
+    priority_queue.push((0, start, Direction::East, 0));
+
+    while let Some((d, node, last_dir, same_steps)) = priority_queue.pop() {
+        for neighbor in graph.neighbors(node) {
+            let edge = graph.find_edge(node, neighbor).unwrap();
+            let edge_dir = graph.edge_weight(edge).unwrap();
+            // No backtracking
+            if match last_dir {
+                Direction::North => *edge_dir == Direction::South,
+                Direction::South => *edge_dir == Direction::North,
+                Direction::East => *edge_dir == Direction::West,
+                Direction::West => *edge_dir == Direction::East,
+            } {
+                continue;
+            }
+
+            // No 3 steps in the same direction
+            let mut same_steps = same_steps;
+            if last_dir == *edge_dir {
+                same_steps += 1;
+            } else {
+                same_steps = 0;
+            }
+            if same_steps > 3 {
+                continue;
+            }
+
+            let new_dist = dist[&node] + graph[neighbor];
+            if !dist.contains_key(&neighbor) || new_dist < dist[&neighbor] {
+                dist.insert(neighbor, new_dist);
+                prev.insert(neighbor, Some(node));
+                // Update priorty queue entry if already there
+                let mut found = false;
+                let mut new_priority_queue = BinaryHeap::new();
+                while let Some((d, n, dir, steps)) = priority_queue.pop() {
+                    if n == neighbor && dir == *edge_dir && new_dist < -d {
+                        new_priority_queue.push((-new_dist, neighbor, *edge_dir, same_steps));
+                        found = true;
+                    } else {
+                        new_priority_queue.push((d, n, dir, steps));
+                    }
+                }
+                if !found {
+                    new_priority_queue.push((-new_dist, neighbor, *edge_dir, same_steps));
+                }
+                priority_queue = new_priority_queue;
+            }
+        }
+    }
+    // Print path based on prev
+    let mut node = target;
+    let mut path = vec![target];
+    while let Some(prev_node) = prev[&node] {
+        path.push(prev_node);
+        node = prev_node;
+    }
+    path.reverse();
+    println!("Path : {:?}", path);
+
+    return dist[&target];
 }
 
 fn parse(input: &str) -> (Graph<i32, Direction>, Vec<Vec<NodeIndex>>) {
@@ -75,86 +125,15 @@ fn parse(input: &str) -> (Graph<i32, Direction>, Vec<Vec<NodeIndex>>) {
     (graph, nodes)
 }
 
-fn solve(input: &str) -> i32 {
+fn main() {
+    let input = include_str!("../../input.txt");
     let (graph, nodes) = parse(input);
-
+    let start = nodes[0][0];
     let width = nodes[0].len();
     let height = nodes.len();
-    explore(
-        &graph,
-        nodes[0][0],
-        nodes[height - 1][width - 1],
-        0,
-        Direction::Nothing,
-        0,
-        &mut HashMap::new(),
-    )
-}
-
-fn explore(
-    graph: &Graph<i32, Direction>,
-    start: NodeIndex,
-    target: NodeIndex,
-    dist: i32,
-    last_direction: Direction,
-    same_dir_steps: i32,
-    cache: &mut HashMap<(NodeIndex, Direction, i32), Option<i32>>,
-) -> i32 {
-    if start == target {
-        return dist;
-    }
-    let mut invalid_directions = vec![];
-
-    if cache.contains_key(&(start, last_direction, same_dir_steps)) {
-        //println!("Cache Hit {:?}", cache);
-        if let Some(result) = cache[&(start, last_direction, same_dir_steps)] {
-            return result;
-        }
-        return i32::MAX;
-    }
-    cache.insert((start, last_direction, same_dir_steps), None);
-
-    if same_dir_steps == 3 {
-        invalid_directions.push(last_direction);
-    }
-
-    let mut smallest_distance: i32 = i32::MAX;
-    for neighbor in graph.neighbors(start) {
-        let edge = graph.find_edge(start, neighbor).unwrap();
-        let direction = graph.edge_weight(edge).unwrap();
-        if invalid_directions.contains(direction) {
-            continue;
-        }
-        let current_distance = dist + graph.node_weight(neighbor).expect("Neighbor ndoe weight");
-        let same_steps: i32 = if *direction == last_direction {
-            same_dir_steps + 1
-        } else {
-            0
-        };
-        let d = explore(
-            graph,
-            neighbor,
-            target,
-            current_distance,
-            *direction,
-            same_steps,
-            cache,
-        );
-        if d < smallest_distance {
-            smallest_distance = d;
-        }
-    }
-    cache.insert(
-        (start, last_direction, same_dir_steps),
-        Some(smallest_distance),
-    );
-    smallest_distance
-}
-
-fn main() {
-    println!("Hello, world!");
-    let input = include_str!("../../example.txt");
-    let result = solve(input);
+    let target = nodes[height - 1][width - 1];
+    println!("Start : {:?} Target : {:?}", start, target);
+    let result = dijkstra(&graph, start, target);
     println!("Result : {}", result);
 }
 
@@ -163,7 +142,15 @@ mod tests {
     use super::*;
     #[test]
     fn example() {
-        let example = include_str!("../../example.txt");
-        assert_eq!(solve(example), 102);
+        let input = include_str!("../../example.txt");
+        let (graph, nodes) = parse(input);
+        let start = nodes[0][0];
+        let width = nodes[0].len();
+        let height = nodes.len();
+        let target = nodes[height - 1][width - 1];
+        println!("Start : {:?} Target : {:?}", start, target);
+        let result = dijkstra(&graph, start, target);
+        println!("Result : {}", result);
+        assert_eq!(result, 102);
     }
 }
