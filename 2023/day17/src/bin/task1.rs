@@ -1,7 +1,4 @@
-use std::{
-    cmp,
-    collections::{BinaryHeap, HashMap},
-};
+use std::collections::{BinaryHeap, HashMap};
 
 use petgraph::{stable_graph::NodeIndex, Graph};
 
@@ -24,7 +21,7 @@ fn dijkstra(graph: &Graph<i32, Direction>, start: NodeIndex, target: NodeIndex) 
     priority_queue.push((0, start, Direction::South, 0));
     priority_queue.push((0, start, Direction::East, 0));
 
-    while let Some((d, node, last_dir, same_steps)) = priority_queue.pop() {
+    while let Some((_, node, last_dir, same_steps)) = priority_queue.pop() {
         for neighbor in graph.neighbors(node) {
             let edge = graph.find_edge(node, neighbor).unwrap();
             let edge_dir = graph.edge_weight(edge).unwrap();
@@ -81,15 +78,15 @@ fn dijkstra(graph: &Graph<i32, Direction>, start: NodeIndex, target: NodeIndex) 
     path.reverse();
     println!("Path : {:?}", path);
 
-    return dist[&target];
+    dist[&target]
 }
 
 fn parse(input: &str) -> (Graph<i32, Direction>, Vec<Vec<NodeIndex>>) {
     let mut graph: Graph<i32, Direction> = Graph::default();
     let mut nodes = vec![];
-    for (y, line) in input.lines().enumerate() {
+    for line in input.lines() {
         let mut row_nodes = vec![];
-        for (x, c) in line.chars().enumerate() {
+        for c in line.chars() {
             if let Some(digit) = c.to_digit(10) {
                 let node = graph.add_node(digit as i32);
                 row_nodes.push(node);
