@@ -15,6 +15,7 @@ struct Node {
     y: u32,
     dir: Direction,
     same_steps: u8,
+    prev: (u32, u32),
 }
 
 fn solve(input: &str) -> i64 {
@@ -26,6 +27,7 @@ fn dijkstra(grid: Vec<Vec<u32>>) -> i64 {
     let mut heap = BinaryHeap::new();
     let mut visited: HashSet<(u32, u32, Direction, u8)> = HashSet::new();
     let mut dist: HashMap<(u32, u32, Direction, u8), i64> = HashMap::new();
+
     let width = grid[0].len();
     let height = grid.len();
     heap.push(Node {
@@ -34,13 +36,22 @@ fn dijkstra(grid: Vec<Vec<u32>>) -> i64 {
         y: 0,
         dir: Direction::South,
         same_steps: 0,
+        prev: (0, 0),
+    });
+    heap.push(Node {
+        dist: 0,
+        x: 0,
+        y: 0,
+        dir: Direction::East,
+        same_steps: 0,
+        prev: (0, 0),
     });
     while let Some(node) = heap.pop() {
         if visited.contains(&(node.x, node.y, node.dir, node.same_steps)) {
             continue;
         }
         visited.insert((node.x, node.y, node.dir, node.same_steps));
-        if node.x as usize == width - 1 && node.y as usize == height - 1 {
+        if node.x as usize == width - 1 && node.y as usize == height - 1 && node.same_steps >= 4 {
             println!("TARGET : {:?}", node);
             return -node.dist;
         }
@@ -52,21 +63,25 @@ fn dijkstra(grid: Vec<Vec<u32>>) -> i64 {
             Direction::West => Direction::East,
         }];
         // println!("node : {:?} Dir: ", node);
-        if node.same_steps == 3 {
+        if node.same_steps == 10 {
             invalid_directions.push(node.dir);
         }
         let mut valid_directions = vec![];
-        if node.y > 0 && !invalid_directions.contains(&Direction::North) {
+        if node.y > 3 && !invalid_directions.contains(&Direction::North) {
             valid_directions.push(Direction::North);
         }
-        if node.x > 0 && !invalid_directions.contains(&Direction::West) {
+        if node.x > 3 && !invalid_directions.contains(&Direction::West) {
             valid_directions.push(Direction::West);
         }
-        if (node.y as usize) < height - 1 && !invalid_directions.contains(&Direction::South) {
+        if (node.y as usize) < height - 4 && !invalid_directions.contains(&Direction::South) {
             valid_directions.push(Direction::South);
         }
-        if (node.x as usize) < width - 1 && !invalid_directions.contains(&Direction::East) {
+        if (node.x as usize) < width - 4 && !invalid_directions.contains(&Direction::East) {
             valid_directions.push(Direction::East);
+        }
+        if node.same_steps < 4 {
+            valid_directions.clear();
+            valid_directions.push(node.dir);
         }
         // println!("Valid Directions: {:?}", valid_directions);
         for dir in valid_directions.iter() {
@@ -111,6 +126,7 @@ fn dijkstra(grid: Vec<Vec<u32>>) -> i64 {
                     y: ny,
                     dir: *dir,
                     same_steps,
+                    prev: (node.x, node.y),
                 });
             }
         }
@@ -151,6 +167,6 @@ mod tests {
     fn example() {
         let input = include_str!("../../example.txt");
         let result = solve(input);
-        assert_eq!(result, 102);
+        assert_eq!(result, 94);
     }
 }
