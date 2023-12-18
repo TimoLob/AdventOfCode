@@ -20,6 +20,7 @@ fn solve(input: &str) -> i64 {
     let mut x = 0;
     let mut y = 0;
     let mut points = Vec::new();
+    println!("x: {}, y: {}", x, y);
     points.push(Point { x, y });
     instructions.iter().for_each(|instruction| {
         match instruction.direction {
@@ -36,14 +37,16 @@ fn solve(input: &str) -> i64 {
     // Shoelace formula to calculate area of polygon
     let mut area: i64 = 0;
     for i in 0..points.len() {
-        area += points[i].x * points[(i + 1) % points.len()].y
-            - points[(i + 1) % points.len()].x * points[i].y;
+        area += (points[i].y + points[(i + 1) % points.len()].y)
+            * (points[i].x - points[(i + 1) % points.len()].x);
     }
 
+    println!("Area: {}", area);
     let i = area.abs() / 2;
     // Picks Theorem
     let b = instructions.iter().fold(0, |acc, p| acc + p.steps);
-    i + b / 2 - 1
+    println!("i: {}, b: {}", i, b);
+    i + b / 2 + 1
 }
 
 fn parse(input: &str) -> Vec<Instruction> {
@@ -54,7 +57,7 @@ fn parse(input: &str) -> Vec<Instruction> {
 
             let color = &parts[2].replace(['(', ')'], "");
             let steps = &color[1..6];
-            // Convert steps to i32 from Hex String
+            // Convert steps to int from Hex String
             let steps = i64::from_str_radix(steps, 16).unwrap();
             let dir = &color[6..7];
             let direction = match dir {
@@ -73,7 +76,7 @@ fn parse(input: &str) -> Vec<Instruction> {
 }
 
 fn main() {
-    let input = include_str!("../../example.txt");
+    let input = include_str!("../../input.txt");
     let result = solve(input);
     println!("Result: {}", result);
 }
