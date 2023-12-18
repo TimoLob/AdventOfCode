@@ -1,8 +1,6 @@
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
-use petgraph::{stable_graph::NodeIndex, Graph};
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum Direction {
     North,
     South,
@@ -10,86 +8,124 @@ enum Direction {
     West,
 }
 
-fn dijkstra(graph: &Graph<i32, Direction>, start: NodeIndex, target: NodeIndex) -> i32 {
-    let mut priority_queue = BinaryHeap::new();
-    let mut dist = HashMap::new();
-    let mut prev = HashMap::new();
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+struct Node {
+    dist: i64,
+    x: u32,
+    y: u32,
+    dir: Direction,
+    same_steps: u8,
+}
 
-    dist.insert(start, 0);
-    prev.insert(start, None);
-    // PQ ((negative) distance from start, nodeindex, direction, same_steps)
-    priority_queue.push((0, start, Direction::South, 0));
-    priority_queue.push((0, start, Direction::East, 0));
+fn solve(input: &str) -> i64 {
+    let grid = parse(input);
+    return dijkstra(grid);
+}
 
-    while let Some((_, node, last_dir, same_steps)) = priority_queue.pop() {
-        for neighbor in graph.neighbors(node) {
-            let edge = graph.find_edge(node, neighbor).unwrap();
-            let edge_dir = graph.edge_weight(edge).unwrap();
-            // No backtracking
-            if match last_dir {
-                Direction::North => *edge_dir == Direction::South,
-                Direction::South => *edge_dir == Direction::North,
-                Direction::East => *edge_dir == Direction::West,
-                Direction::West => *edge_dir == Direction::East,
-            } {
-                continue;
+fn dijkstra(grid: Vec<Vec<u32>>) -> i64 {
+    let mut heap = BinaryHeap::new();
+    let mut visited: HashSet<(u32, u32, Direction, u8)> = HashSet::new();
+    let mut dist: HashMap<(u32, u32, Direction, u8), i64> = HashMap::new();
+    let width = grid[0].len();
+    let height = grid.len();
+    heap.push(Node {
+        dist: 0,
+        x: 0,
+        y: 0,
+        dir: Direction::South,
+        same_steps: 0,
+    });
+    while let Some(node) = heap.pop() {
+        if visited.contains(&(node.x, node.y, node.dir, node.same_steps)) {
+            continue;
+        }
+        visited.insert((node.x, node.y, node.dir, node.same_steps));
+        if node.x as usize == width - 1 && node.y as usize == height - 1 {
+            println!("TARGET : {:?}", node);
+            return -node.dist;
+        }
+        let mut invalid_directions = vec![match node.dir {
+            // No Backtracking
+            Direction::North => Direction::South,
+            Direction::South => Direction::North,
+            Direction::East => Direction::West,
+            Direction::West => Direction::East,
+        }];
+        // println!("node : {:?} Dir: ", node);
+        if node.same_steps == 3 {
+            invalid_directions.push(node.dir);
+        }
+        let mut valid_directions = vec![];
+        if node.y > 0 && !invalid_directions.contains(&Direction::North) {
+            valid_directions.push(Direction::North);
+        }
+        if node.x > 0 && !invalid_directions.contains(&Direction::West) {
+            valid_directions.push(Direction::West);
+        }
+        if (node.y as usize) < height - 1 && !invalid_directions.contains(&Direction::South) {
+            valid_directions.push(Direction::South);
+        }
+        if (node.x as usize) < width - 1 && !invalid_directions.contains(&Direction::East) {
+            valid_directions.push(Direction::East);
+        }
+        // println!("Valid Directions: {:?}", valid_directions);
+        for dir in valid_directions.iter() {
+            let nx;
+            let ny;
+            match dir {
+                Direction::North => {
+                    nx = node.x;
+                    ny = node.y - 1;
+                }
+                Direction::South => {
+                    nx = node.x;
+                    ny = node.y + 1;
+                }
+                Direction::East => {
+                    nx = node.x + 1;
+                    ny = node.y;
+                }
+                Direction::West => {
+                    nx = node.x - 1;
+                    ny = node.y;
+                }
             }
-
-            // No 3 steps in the same direction
-            let mut same_steps = same_steps;
-            if last_dir == *edge_dir {
-                same_steps += 1;
+            let same_steps = if *dir == node.dir {
+                node.same_steps + 1
             } else {
-                same_steps = 0;
-            }
-            if same_steps > 3 {
-                continue;
-            }
-
-            let new_dist = dist[&node] + graph[neighbor];
-            if !dist.contains_key(&neighbor) || new_dist < dist[&neighbor] {
-                dist.insert(neighbor, new_dist);
-                prev.insert(neighbor, Some(node));
-                // Update priorty queue entry if already there
-                let mut found = false;
-                let mut new_priority_queue = BinaryHeap::new();
-                while let Some((d, n, dir, steps)) = priority_queue.pop() {
-                    if n == neighbor && dir == *edge_dir && new_dist < -d {
-                        new_priority_queue.push((-new_dist, neighbor, *edge_dir, same_steps));
-                        found = true;
-                    } else {
-                        new_priority_queue.push((d, n, dir, steps));
-                    }
-                }
-                if !found {
-                    new_priority_queue.push((-new_dist, neighbor, *edge_dir, same_steps));
-                }
-                priority_queue = new_priority_queue;
+                1
+            };
+            // println!("Direction {:?} NX : {} NY : {}", dir, nx, ny);
+            let cost = grid[ny as usize][nx as usize];
+            let alt = -node.dist + cost as i64;
+            if !dist.contains_key(&(nx, ny, *dir, same_steps))
+                || *dist
+                    .get(&(node.x, node.y, node.dir, node.same_steps))
+                    .unwrap()
+                    > alt
+            {
+                dist.insert((nx, ny, *dir, same_steps), alt);
+                heap.push(Node {
+                    dist: -1 * alt,
+                    x: nx,
+                    y: ny,
+                    dir: *dir,
+                    same_steps,
+                });
             }
         }
     }
-    // Print path based on prev
-    let mut node = target;
-    let mut path = vec![target];
-    while let Some(prev_node) = prev[&node] {
-        path.push(prev_node);
-        node = prev_node;
-    }
-    path.reverse();
-    println!("Path : {:?}", path);
 
-    dist[&target]
+    0
 }
 
-fn parse(input: &str) -> (Graph<i32, Direction>, Vec<Vec<NodeIndex>>) {
-    let mut graph: Graph<i32, Direction> = Graph::default();
+fn parse(input: &str) -> Vec<Vec<u32>> {
     let mut nodes = vec![];
     for line in input.lines() {
         let mut row_nodes = vec![];
         for c in line.chars() {
             if let Some(digit) = c.to_digit(10) {
-                let node = graph.add_node(digit as i32);
-                row_nodes.push(node);
+                row_nodes.push(digit);
                 print!("{}", digit);
             } else {
                 panic!("Unexpected character {}", c);
@@ -98,39 +134,13 @@ fn parse(input: &str) -> (Graph<i32, Direction>, Vec<Vec<NodeIndex>>) {
         nodes.push(row_nodes);
         println!();
     }
-    let height = nodes.len();
-    let width = nodes[0].len();
-    println!("W : {} H : {}", width, height);
-
-    for (y, row_nodes) in nodes.iter().enumerate() {
-        for (x, node_index) in row_nodes.iter().enumerate() {
-            if y > 0 {
-                graph.add_edge(*node_index, nodes[y - 1][x], Direction::North);
-            }
-            if x > 0 {
-                graph.add_edge(*node_index, nodes[y][x - 1], Direction::West);
-            }
-            if y < height - 1 {
-                graph.add_edge(*node_index, nodes[y + 1][x], Direction::South);
-            }
-            if x < width - 1 {
-                graph.add_edge(*node_index, nodes[y][x + 1], Direction::East);
-            }
-        }
-    }
-
-    (graph, nodes)
+    nodes
 }
 
 fn main() {
     let input = include_str!("../../input.txt");
-    let (graph, nodes) = parse(input);
-    let start = nodes[0][0];
-    let width = nodes[0].len();
-    let height = nodes.len();
-    let target = nodes[height - 1][width - 1];
-    println!("Start : {:?} Target : {:?}", start, target);
-    let result = dijkstra(&graph, start, target);
+
+    let result = solve(input);
     println!("Result : {}", result);
 }
 
@@ -140,14 +150,7 @@ mod tests {
     #[test]
     fn example() {
         let input = include_str!("../../example.txt");
-        let (graph, nodes) = parse(input);
-        let start = nodes[0][0];
-        let width = nodes[0].len();
-        let height = nodes.len();
-        let target = nodes[height - 1][width - 1];
-        println!("Start : {:?} Target : {:?}", start, target);
-        let result = dijkstra(&graph, start, target);
-        println!("Result : {}", result);
+        let result = solve(input);
         assert_eq!(result, 102);
     }
 }
