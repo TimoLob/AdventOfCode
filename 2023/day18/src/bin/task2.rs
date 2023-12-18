@@ -1,12 +1,3 @@
-use hex_color::HexColor;
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-enum Cell {
-    Ground,
-    Trench,
-    Inside,
-    Outside,
-}
 #[derive(Debug)]
 enum Direction {
     Up,
@@ -15,97 +6,44 @@ enum Direction {
     Right,
 }
 
+struct Point {
+    x: i64,
+    y: i64,
+}
 struct Instruction {
     direction: Direction,
-    steps: i32,
+    steps: i64,
 }
 
-fn print_grid(grid: &Vec<Vec<Cell>>) {
-    for y in 0..grid[0].len() {
-        for x in 0..grid.len() {
-            match grid[x][y] {
-                Cell::Ground => print!("."),
-                Cell::Trench => print!("#"),
-                Cell::Inside => print!("I"),
-                Cell::Outside => print!("O"),
-            }
-        }
-        println!();
-    }
-}
-
-fn floodfill(grid: &mut Vec<Vec<Cell>>) {
-    let mut queue = Vec::new();
-    queue.push((0, 0));
-    while let Some((x, y)) = queue.pop() {
-        if grid[x][y] != Cell::Ground {
-            continue;
-        }
-        grid[x][y] = Cell::Outside;
-        if x > 0 {
-            queue.push((x - 1, y));
-        }
-        if y > 0 {
-            queue.push((x, y - 1));
-        }
-        if x < grid.len() - 1 {
-            queue.push((x + 1, y));
-        }
-        if y < grid[0].len() - 1 {
-            queue.push((x, y + 1));
-        }
-    }
-}
-
-fn solve(input: &str) -> i32 {
-    // Create a 500x500 grid of Ground Cells
-    let mut grid = vec![vec![Cell::Ground; 500]; 500];
-
-    let mut x = grid.len() / 2;
-    let mut y = grid[0].len() / 2;
-
+fn solve(input: &str) -> i64 {
     let instructions = parse(input);
+    let mut x = 0;
+    let mut y = 0;
+    let mut points = Vec::new();
+    points.push(Point { x, y });
     instructions.iter().for_each(|instruction| {
-        for _ in 0..instruction.steps {
-            match instruction.direction {
-                Direction::Up => y -= 1,
-                Direction::Down => y += 1,
-                Direction::Left => x -= 1,
-                Direction::Right => x += 1,
-            };
-            if x > grid.len() {
-                panic!("X out of bounds {}", x);
-            }
-            if y > grid[0].len() {
-                panic!("y out of bounds {}", y);
-            }
-            grid[x][y] = Cell::Trench;
-        }
+        match instruction.direction {
+            Direction::Up => y -= instruction.steps,
+            Direction::Down => y += instruction.steps,
+            Direction::Left => x -= instruction.steps,
+            Direction::Right => x += instruction.steps,
+        };
+        points.push(Point { x, y });
+        println!("x: {}, y: {}", x, y);
     });
-    floodfill(&mut grid);
+    println!("Len: {}", points.len());
 
-    for x in 0..grid.len() {
-        for y in 0..grid[0].len() {
-            if grid[x][y] == Cell::Ground {
-                grid[x][y] = Cell::Inside;
-            }
-        }
+    // Shoelace formula to calculate area of polygon
+    let mut area: i64 = 0;
+    for i in 0..points.len() {
+        area += points[i].x * points[(i + 1) % points.len()].y
+            - points[(i + 1) % points.len()].x * points[i].y;
     }
 
-    print_grid(&grid);
-    // Count the number of cells that are inside and trenches
-    let mut inside = 0;
-
-    for x in 0..grid.len() {
-        for y in 0..grid[0].len() {
-            match grid[x][y] {
-                Cell::Inside | Cell::Trench => inside += 1,
-                _ => (),
-            }
-        }
-    }
-
-    inside
+    let i = area.abs() / 2;
+    // Picks Theorem
+    let b = instructions.iter().fold(0, |acc, p| acc + p.steps);
+    i + b / 2 - 1
 }
 
 fn parse(input: &str) -> Vec<Instruction> {
@@ -117,7 +55,7 @@ fn parse(input: &str) -> Vec<Instruction> {
             let color = &parts[2].replace(['(', ')'], "");
             let steps = &color[1..6];
             // Convert steps to i32 from Hex String
-            let steps = i32::from_str_radix(steps, 16).unwrap();
+            let steps = i64::from_str_radix(steps, 16).unwrap();
             let dir = &color[6..7];
             let direction = match dir {
                 "3" => Direction::Up,
