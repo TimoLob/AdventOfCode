@@ -7,15 +7,42 @@ enum Operator {
 }
 
 #[derive(Debug)]
+struct Range {
+    min: i64,
+    max: i64,
+}
+
+#[derive(Debug)]
 enum Rule {
-    // Target, <>, value to compare to, variable to compare
-    Condition(String, Operator, i64, char),
+    // Target, Range of allowed value, variable to compare
+    Condition(String, Range, char),
     Default(String),
 }
 
 #[derive(Debug)]
 struct Part {
     ratings: HashMap<char, i64>,
+}
+
+impl Range {
+    fn new(min: i64, max: i64) -> Range {
+        Range { min, max }
+    }
+
+    fn intersection(&self, other: &Range) -> Option<Range> {
+        if self.max < other.min || other.max < self.min {
+            None
+        } else {
+            Some(Range {
+                min: self.min.max(other.min),
+                max: self.max.min(other.max),
+            })
+        }
+    }
+
+    fn contains(&self, value: i64) -> bool {
+        self.min <= value && value <= self.max
+    }
 }
 
 fn parse_workflow(input: &str) -> HashMap<&str, Vec<Rule>> {
@@ -51,7 +78,11 @@ fn parse_rule(rule_s: &str) -> Rule {
             _ => panic!("Invalid operator"),
         };
 
-        Rule::Condition(target.to_string(), comparator, value, variable)
+        let range = match comparator {
+            Operator::LessThan => Range::new(1, value - 1),
+            Operator::GreaterThan => Range::new(value + 1, 4000),
+        };
+        Rule::Condition(target.to_string(), range, variable)
     } else {
         let target = rule_s.replace('}', "");
         Rule::Default(target)
@@ -102,15 +133,12 @@ fn solve(input: &str) -> i64 {
             for rule in rules {
                 //Target, <>, value to compare to, variable to compare
                 match rule {
-                    Rule::Condition(target, comparator, cvalue, variable) => {
+                    Rule::Condition(target, range, variable) => {
                         let value = *part
                             .ratings
                             .get(variable)
                             .expect("Part should have rating for var");
-                        let matches = match comparator {
-                            Operator::LessThan => value < *cvalue,
-                            Operator::GreaterThan => value > *cvalue,
-                        };
+                        let matches = range.contains(value);
                         if matches {
                             current_workflow = target;
                             break;
