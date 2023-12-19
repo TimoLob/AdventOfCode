@@ -6,7 +6,7 @@ enum Operator {
     GreaterThan,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct Range {
     min: i64,
     max: i64,
@@ -38,6 +38,17 @@ impl Range {
                 max: self.max.min(other.max),
             })
         }
+    }
+
+    fn inverse(&self) -> Vec<Range> {
+        let mut ranges = vec![];
+        if self.min > 1 {
+            ranges.push(Range::new(1, self.min - 1));
+        }
+        if self.max < 4000 {
+            ranges.push(Range::new(self.max + 1, 4000));
+        }
+        ranges
     }
 
     fn contains(&self, value: i64) -> bool {
@@ -95,32 +106,71 @@ fn solve(input: &str) -> i64 {
     let workflow_s = splits[0];
     let parts_s = splits[1];
     let workflows = parse_workflow(workflow_s);
-
+    let mut parts = VecDeque::new();
     let mut map = HashMap::new();
     map.insert('x', Range::new(1, 4000));
     map.insert('m', Range::new(1, 4000));
     map.insert('a', Range::new(1, 4000));
     map.insert('s', Range::new(1, 4000));
-    let mut parts = VecDeque::new();
-    parts.push_back(("in", Part { ratings: map }));
+
+    // parts.push_back(("in", Part { ratings: map }));
+    map.insert('x', Range::new(1, 4000));
+    map.insert('m', Range::new(1801, 4000));
+    map.insert('a', Range::new(1, 4000));
+    map.insert('s', Range::new(1, 2770));
+    parts.push_back(("hdj", Part { ratings: map }));
     let mut acceped_parts: Vec<Part> = vec![];
     let mut rejected_parts: Vec<Part> = vec![];
     while let Some((workflow_name, part)) = parts.pop_front() {
         let workflow = workflows.get(workflow_name).expect("Workflow should exist");
-        let new_parts = vec![];
+        let mut new_parts: VecDeque<(&str, Part)> = VecDeque::new();
         for rule in workflow.iter() {
             match rule {
-                Rule::Condition(_, _, _) => todo!(),
-                Rule::Default(_) => todo!(),
+                Rule::Condition(target, range, var) => {
+                    let value = part.ratings.get(var).unwrap();
+
+                    if let Some(intersection) = value.intersection(range) {
+                        let ranges = intersection.inverse();
+                        for range in ranges {
+                            let mut new_part = Part {
+                                ratings: part.ratings.clone(),
+                            };
+                            new_part.ratings.insert(*var, range);
+                            new_parts.push_back((workflow_name, new_part));
+                        }
+                        let mut new_part = Part {
+                            ratings: part.ratings.clone(),
+                        };
+                        new_part.ratings.insert(*var, intersection);
+                        new_parts.push_back((target, new_part));
+                        break;
+                    }
+                }
+                Rule::Default(target) => {
+                    let new_part = Part {
+                        ratings: part.ratings.clone(),
+                    };
+                    new_parts.push_back((target, new_part));
+                    break;
+                }
             };
         }
+        for (workflow, new_part) in new_parts {
+            if workflow == "A" {
+                acceped_parts.push(new_part);
+            } else if workflow == "R" {
+                rejected_parts.push(new_part);
+            } else {
+                parts.push_back((workflow, new_part));
+            }
+        }
     }
-
+    println!("{:?}", acceped_parts);
     acceped_parts.len() as i64
 }
 
 fn main() {
-    let input = include_str!("../../input.txt");
+    let input = include_str!("../../example.txt");
     let result = solve(input);
     println!("Result: {:?}", result);
 }
