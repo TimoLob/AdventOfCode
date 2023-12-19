@@ -44,17 +44,6 @@ impl Range {
         }
     }
 
-    fn inverse(&self) -> Vec<Range> {
-        let mut ranges = vec![];
-        if self.min > 1 {
-            ranges.push(Range::new(1, self.min - 1));
-        }
-        if self.max < 4000 {
-            ranges.push(Range::new(self.max + 1, 4000));
-        }
-        ranges
-    }
-
     fn subtract(&self, other: &Range) -> Vec<Range> {
         let mut ranges = vec![];
         if self.min < other.min {
@@ -64,9 +53,6 @@ impl Range {
             ranges.push(Range::new(other.max + 1, self.max));
         }
         ranges
-    }
-    fn contains(&self, value: i64) -> bool {
-        self.min <= value && value <= self.max
     }
 }
 
@@ -91,8 +77,7 @@ fn parse_rule(rule_s: &str) -> Rule {
         let split = rule_s.split(':').collect::<Vec<&str>>();
         let condition = split[0];
         let target = split[1];
-        //println!("{:?}", condition);
-        //println!("{:?}", target);
+
         // Conver a<2006 to a closure a can be one of x,m,a,s. The comparison operator can be <,>
         let variable = condition.chars().next().unwrap();
         let operator = condition.chars().nth(1).unwrap();
@@ -116,9 +101,7 @@ fn parse_rule(rule_s: &str) -> Rule {
 
 fn solve(input: &str) -> i64 {
     let splits = input.split("\n\n").collect::<Vec<&str>>();
-    //println!("{:?}", splits);
     let workflow_s = splits[0];
-    let parts_s = splits[1];
     let workflows = parse_workflow(workflow_s);
     let mut parts = VecDeque::new();
     let mut map = HashMap::new();
@@ -128,11 +111,7 @@ fn solve(input: &str) -> i64 {
     map.insert('s', Range::new(1, 4000));
 
     parts.push_back(("in", Part { ratings: map }));
-    //map.insert('x', Range::new(1, 4000));
-    //map.insert('m', Range::new(1801, 4000));
-    //map.insert('a', Range::new(1, 4000));
-    //map.insert('s', Range::new(1, 2770));
-    //parts.push_back(("hdj", Part { ratings: map }));
+
     let mut acceped_parts: Vec<Part> = vec![];
     let mut rejected_parts: Vec<Part> = vec![];
     while let Some((workflow_name, part)) = parts.pop_front() {
@@ -179,7 +158,7 @@ fn solve(input: &str) -> i64 {
             }
         }
     }
-    println!("{:?}", acceped_parts);
+    // println!("{:?}", acceped_parts);
     acceped_parts.iter().fold(0, |acc, part| {
         acc + part.ratings.get(&'x').unwrap().len()
             * part.ratings.get(&'m').unwrap().len()

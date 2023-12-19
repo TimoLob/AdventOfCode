@@ -29,17 +29,6 @@ impl Range {
         Range { min, max }
     }
 
-    fn intersection(&self, other: &Range) -> Option<Range> {
-        if self.max < other.min || other.max < self.min {
-            None
-        } else {
-            Some(Range {
-                min: self.min.max(other.min),
-                max: self.max.min(other.max),
-            })
-        }
-    }
-
     fn contains(&self, value: i64) -> bool {
         self.min <= value && value <= self.max
     }
@@ -51,7 +40,6 @@ fn parse_workflow(input: &str) -> HashMap<&str, Vec<Rule>> {
         let split = line.split('{').collect::<Vec<&str>>();
         let name = split[0];
         let rules_s = split[1].split(',');
-        //println!("{:?}", name);
 
         let rules = rules_s.map(parse_rule).collect::<Vec<Rule>>();
         workflows.insert(name, rules);
@@ -66,8 +54,7 @@ fn parse_rule(rule_s: &str) -> Rule {
         let split = rule_s.split(':').collect::<Vec<&str>>();
         let condition = split[0];
         let target = split[1];
-        //println!("{:?}", condition);
-        //println!("{:?}", target);
+
         // Conver a<2006 to a closure a can be one of x,m,a,s. The comparison operator can be <,>
         let variable = condition.chars().next().unwrap();
         let operator = condition.chars().nth(1).unwrap();
@@ -101,8 +88,7 @@ fn parse_parts(input: &str) -> Vec<Part> {
                 let split = rating.split('=').collect::<Vec<&str>>();
                 let key = split[0].chars().next().unwrap();
                 let value = split[1].parse::<i64>().unwrap();
-                //println!("{:?}", key);
-                //println!("{:?}", value);
+
                 map.insert(key, value);
             }
             Part { ratings: map }
@@ -113,20 +99,15 @@ fn parse_parts(input: &str) -> Vec<Part> {
 
 fn solve(input: &str) -> i64 {
     let splits = input.split("\n\n").collect::<Vec<&str>>();
-    //println!("{:?}", splits);
     let workflow_s = splits[0];
     let parts_s = splits[1];
     let workflows = parse_workflow(workflow_s);
     let parts = parse_parts(parts_s);
     let mut total = 0;
     for part in parts {
-        println!("{:?}", part);
+        // println!("{:?}", part);
         let mut current_workflow = "in";
         loop {
-            println!(
-                "Current Workflow: {:?} | Current Part : {:?}",
-                current_workflow, part
-            );
             let rules = workflows
                 .get(current_workflow)
                 .expect("Expect workflow to exist");
@@ -153,7 +134,7 @@ fn solve(input: &str) -> i64 {
             if current_workflow == "A" {
                 let part_total = part.ratings.iter().fold(0, |acc, (_, value)| acc + *value);
                 total += part_total;
-                println!("Accepted part {:?} with total {}", part, part_total);
+                // println!("Accepted part {:?} with total {}", part, part_total);
                 break;
             } else if current_workflow == "R" {
                 break;
