@@ -13,4 +13,4 @@ While Elements in Queue. Pop first element.
 Apply the first rule that matches and split the part into parts, depending on the destination and range of the rule.
 If Part is accepted, or rejected, add it to the corresponding vector. If it needs to be further processed, add it to the back of the queue.
 
-After the queue is empty, multiply the len of ranges for each part and add them together for the Result.
+After the queue is empty, multiply the len of ranges for each accepted part and add them together for the Result.
