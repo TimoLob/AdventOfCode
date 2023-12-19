@@ -29,6 +29,10 @@ impl Range {
         Range { min, max }
     }
 
+    fn len(&self) -> i64 {
+        self.max - self.min + 1
+    }
+
     fn intersection(&self, other: &Range) -> Option<Range> {
         if self.max < other.min || other.max < self.min {
             None
@@ -51,6 +55,16 @@ impl Range {
         ranges
     }
 
+    fn subtract(&self, other: &Range) -> Vec<Range> {
+        let mut ranges = vec![];
+        if self.min < other.min {
+            ranges.push(Range::new(self.min, other.min - 1));
+        }
+        if self.max > other.max {
+            ranges.push(Range::new(other.max + 1, self.max));
+        }
+        ranges
+    }
     fn contains(&self, value: i64) -> bool {
         self.min <= value && value <= self.max
     }
@@ -113,12 +127,12 @@ fn solve(input: &str) -> i64 {
     map.insert('a', Range::new(1, 4000));
     map.insert('s', Range::new(1, 4000));
 
-    // parts.push_back(("in", Part { ratings: map }));
-    map.insert('x', Range::new(1, 4000));
-    map.insert('m', Range::new(1801, 4000));
-    map.insert('a', Range::new(1, 4000));
-    map.insert('s', Range::new(1, 2770));
-    parts.push_back(("hdj", Part { ratings: map }));
+    parts.push_back(("in", Part { ratings: map }));
+    //map.insert('x', Range::new(1, 4000));
+    //map.insert('m', Range::new(1801, 4000));
+    //map.insert('a', Range::new(1, 4000));
+    //map.insert('s', Range::new(1, 2770));
+    //parts.push_back(("hdj", Part { ratings: map }));
     let mut acceped_parts: Vec<Part> = vec![];
     let mut rejected_parts: Vec<Part> = vec![];
     while let Some((workflow_name, part)) = parts.pop_front() {
@@ -130,7 +144,7 @@ fn solve(input: &str) -> i64 {
                     let value = part.ratings.get(var).unwrap();
 
                     if let Some(intersection) = value.intersection(range) {
-                        let ranges = intersection.inverse();
+                        let ranges = value.subtract(range);
                         for range in ranges {
                             let mut new_part = Part {
                                 ratings: part.ratings.clone(),
@@ -166,11 +180,16 @@ fn solve(input: &str) -> i64 {
         }
     }
     println!("{:?}", acceped_parts);
-    acceped_parts.len() as i64
+    acceped_parts.iter().fold(0, |acc, part| {
+        acc + part.ratings.get(&'x').unwrap().len()
+            * part.ratings.get(&'m').unwrap().len()
+            * part.ratings.get(&'a').unwrap().len()
+            * part.ratings.get(&'s').unwrap().len()
+    })
 }
 
 fn main() {
-    let input = include_str!("../../example.txt");
+    let input = include_str!("../../input.txt");
     let result = solve(input);
     println!("Result: {:?}", result);
 }
