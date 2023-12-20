@@ -1,4 +1,3 @@
-use core::num;
 use std::collections::{HashMap, VecDeque};
 
 use nom::{
@@ -69,8 +68,9 @@ fn parse(input: &str) -> IResult<&str, HashMap<&str, Module>> {
         map.insert(name, module.clone());
     }
 
-    // Iterate over all modules. Conjunction Modules have a Hashmap that contains all their inputs with a Low Pulse
-    let mut inputs = HashMap::new(); // Map from Module Receiving input to module sending input
+    // Iterate over all modules. Find modules that output to Conjunction Modules.
+    // Conjunction moduls have a Hashmap that contains all their inputs with initially Low Pulse
+    let mut inputs = HashMap::new(); // Map Receiver : Sender
     for (name, module) in modules.iter() {
         for output in module.output.iter() {
             if let Some(output_module) = map.get(output) {
@@ -80,7 +80,7 @@ fn parse(input: &str) -> IResult<&str, HashMap<&str, Module>> {
             }
         }
     }
-
+    // Initialize input map for conjunction modules
     for (receiver, sender) in inputs.iter() {
         if let Some(Module {
             module_type: ModuleType::Conjunction(map),
@@ -105,14 +105,21 @@ struct Event<'a> {
     module_name: &'a str,
     pulse: Pulse,
     source: &'a str,
+    update_only: bool,
 }
 
 impl Event<'_> {
-    fn new<'a>(module_name: &'a str, pulse: Pulse, source: &'a str) -> Event<'a> {
+    fn new<'a>(
+        module_name: &'a str,
+        pulse: Pulse,
+        source: &'a str,
+        update_only: bool,
+    ) -> Event<'a> {
         Event {
             module_name, // Receiver
             pulse,
             source,
+            update_only,
         }
     }
 }
@@ -122,23 +129,42 @@ fn push_the_button(modules: &mut HashMap<&str, Module>, number_of_times: u64) ->
     let mut high_pulses: u64 = 0;
     for i in 0..number_of_times {
         // println!("Button Press {}", i);
-        let mut event_queue: VecDeque<Event> = VecDeque::new();
-        event_queue.push_back(Event::new("button", Pulse::Low, ""));
-        while let Some(event) = event_queue.pop_front() {
-            //println!("Event: {:?}", event);
 
+        // Event Queue. Contains events that need to be processed in order.
+        // Initialized with a button press event
+        let mut event_queue: VecDeque<Event> = VecDeque::new();
+        event_queue.push_back(Event::new("button", Pulse::Low, "", false));
+        while let Some(event) = event_queue.pop_front() {
             let module = modules.get_mut(event.module_name);
             if module.is_none() {
                 // println!("Module {} not found", event.module_name);
+                // Some Modules send pulses to modules that are not in the list.
                 continue;
             }
             let module = module.unwrap();
+            if event.update_only {
+                // If the event is an update event, update the module, if it is a Conjunction, and continue
+                if let ModuleType::Conjunction(map) = &module.module_type {
+                    // Ugly code to update the map, but it should work.
+
+                    let mut new_map = map.clone();
+
+                    new_map.insert(event.source, event.pulse); // First update the map
+
+                    // Update the module with the new map
+                    module.module_type = ModuleType::Conjunction(new_map);
+                }
+
+                continue;
+            }
+
             let mut output_pulse: Option<Pulse> = None;
             match &module.module_type {
                 ModuleType::FlipFlop(state) => {
                     match event.pulse {
-                        Pulse::High => {}
+                        Pulse::High => {} // Do nothing
                         Pulse::Low => {
+                            // On Low : Flip state and send corresponding Pulse
                             if *state {
                                 module.module_type = ModuleType::FlipFlop(false);
                                 output_pulse = Some(Pulse::Low);
@@ -150,31 +176,33 @@ fn push_the_button(modules: &mut HashMap<&str, Module>, number_of_times: u64) ->
                     };
                 }
                 ModuleType::Conjunction(map) => {
-                    let mut new_map = map.clone();
-
-                    new_map.insert(event.source, event.pulse);
-                    if new_map.values().all(|&v| v == Pulse::High) {
+                    if map.values().all(|&v| v == Pulse::High) {
+                        // Then if all values are high, send low pulse
                         output_pulse = Some(Pulse::Low);
                     } else {
-                        output_pulse = Some(Pulse::High);
+                        output_pulse = Some(Pulse::High); // Otherwise send high pulse
                     }
-                    module.module_type = ModuleType::Conjunction(new_map);
                 }
                 ModuleType::Broadcast => {
+                    // Broadcast module sends the same pulse it receives
                     output_pulse = Some(event.pulse);
                 }
                 ModuleType::Button => {
+                    // Button module sends a low pulse (It always receives a low pulse)
                     output_pulse = Some(event.pulse);
                 }
             };
+            // If the module sends a pulse, add the pulse to the event queue
+            // High and low pulses are counted as they are added to the event queue
             if let Some(pulse) = output_pulse {
                 for output in module.output.iter() {
                     match pulse {
                         Pulse::High => high_pulses += 1,
                         Pulse::Low => low_pulses += 1,
                     }
-                    println!("{} -{:?}-> {} ", event.module_name, pulse, output);
-                    event_queue.push_back(Event::new(output, pulse, event.module_name));
+                    println!("{} {:?}-> {} ", event.module_name, pulse, output);
+                    event_queue.push_front(Event::new(output, pulse, event.module_name, true));
+                    event_queue.push_back(Event::new(output, pulse, event.module_name, false));
                 }
             }
         }
@@ -185,6 +213,7 @@ fn push_the_button(modules: &mut HashMap<&str, Module>, number_of_times: u64) ->
 }
 
 fn solve(modules: HashMap<&str, Module>) -> u64 {
+    // Press the button 1000 times
     push_the_button(&mut modules.clone(), 1)
 }
 
@@ -199,7 +228,7 @@ fn main() {
 mod tests {
     use super::*;
     #[test]
-    fn example() {
+    fn example1() {
         let example = include_str!("../../example.txt");
         let modules = parse(example).unwrap().1;
         assert_eq!(solve(modules), 32000000);
