@@ -1,4 +1,3 @@
-use core::num;
 use std::collections::{HashMap, VecDeque};
 
 use nom::{
@@ -106,14 +105,21 @@ struct Event<'a> {
     module_name: &'a str,
     pulse: Pulse,
     source: &'a str,
+    update_only: bool,
 }
 
 impl Event<'_> {
-    fn new<'a>(module_name: &'a str, pulse: Pulse, source: &'a str) -> Event<'a> {
+    fn new<'a>(
+        module_name: &'a str,
+        pulse: Pulse,
+        source: &'a str,
+        update_only: bool,
+    ) -> Event<'a> {
         Event {
             module_name, // Receiver
             pulse,
             source,
+            update_only,
         }
     }
 }
@@ -127,7 +133,7 @@ fn push_the_button(modules: &mut HashMap<&str, Module>, number_of_times: u64) ->
         // Event Queue. Contains events that need to be processed in order.
         // Initialized with a button press event
         let mut event_queue: VecDeque<Event> = VecDeque::new();
-        event_queue.push_back(Event::new("button", Pulse::Low, ""));
+        event_queue.push_back(Event::new("button", Pulse::Low, "", false));
         while let Some(event) = event_queue.pop_front() {
             let module = modules.get_mut(event.module_name);
             if module.is_none() {
@@ -136,6 +142,20 @@ fn push_the_button(modules: &mut HashMap<&str, Module>, number_of_times: u64) ->
                 continue;
             }
             let module = module.unwrap();
+            if event.update_only {
+                // If the event is an update event, update the module, if it is a Conjunction, and continue
+                if let ModuleType::Conjunction(map) = &module.module_type {
+                    let mut new_map = map.clone();
+
+                    new_map.insert(event.source, event.pulse); // First update the map
+
+                    // Update the module with the new map
+                    module.module_type = ModuleType::Conjunction(new_map);
+                }
+
+                continue;
+            }
+
             let mut output_pulse: Option<Pulse> = None;
             match &module.module_type {
                 ModuleType::FlipFlop(state) => {
@@ -155,17 +175,13 @@ fn push_the_button(modules: &mut HashMap<&str, Module>, number_of_times: u64) ->
                 }
                 ModuleType::Conjunction(map) => {
                     // Ugly code to update the map, but it should work.
-                    let mut new_map = map.clone();
 
-                    new_map.insert(event.source, event.pulse); // First update the map
-                    if new_map.values().all(|&v| v == Pulse::High) {
+                    if map.values().all(|&v| v == Pulse::High) {
                         // Then if all values are high, send low pulse
                         output_pulse = Some(Pulse::Low);
                     } else {
                         output_pulse = Some(Pulse::High); // Otherwise send high pulse
                     }
-                    // Update the module with the new map
-                    module.module_type = ModuleType::Conjunction(new_map);
                 }
                 ModuleType::Broadcast => {
                     // Broadcast module sends the same pulse it receives
@@ -184,8 +200,8 @@ fn push_the_button(modules: &mut HashMap<&str, Module>, number_of_times: u64) ->
                         Pulse::High => high_pulses += 1,
                         Pulse::Low => low_pulses += 1,
                     }
-                    // println!("{} -{:?}-> {} ", event.module_name, pulse, output);
-                    event_queue.push_back(Event::new(output, pulse, event.module_name));
+                    event_queue.push_front(Event::new(output, pulse, event.module_name, true));
+                    event_queue.push_back(Event::new(output, pulse, event.module_name, false));
                 }
             }
         }
