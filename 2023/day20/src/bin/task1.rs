@@ -1,4 +1,3 @@
-use core::num;
 use std::collections::{HashMap, VecDeque};
 
 use nom::{
@@ -173,7 +172,7 @@ fn push_the_button(modules: &mut HashMap<&str, Module>, number_of_times: u64) ->
                         Pulse::High => high_pulses += 1,
                         Pulse::Low => low_pulses += 1,
                     }
-                    println!("{} -{:?}-> {} ", event.module_name, pulse, output);
+                    // println!("{} -{:?}-> {} ", event.module_name, pulse, output);
                     event_queue.push_back(Event::new(output, pulse, event.module_name));
                 }
             }
@@ -185,11 +184,11 @@ fn push_the_button(modules: &mut HashMap<&str, Module>, number_of_times: u64) ->
 }
 
 fn solve(modules: HashMap<&str, Module>) -> u64 {
-    push_the_button(&mut modules.clone(), 1)
+    push_the_button(&mut modules.clone(), 1000)
 }
 
 fn main() {
-    let input = include_str!("../../example4.txt");
+    let input = include_str!("../../example3.txt");
     let modules = parse(input);
     let result = solve(modules.unwrap().1);
     println!("Result: {}", result);
@@ -210,5 +209,12 @@ mod tests {
         let example = include_str!("../../example2.txt");
         let modules = parse(example).unwrap().1;
         assert_eq!(solve(modules), 11687500);
+    }
+
+    #[test]
+    fn example3() {
+        let example = include_str!("../../example6.txt");
+        let modules = parse(example).unwrap().1;
+        assert_eq!(solve(modules), 3500 * 4500);
     }
 }
