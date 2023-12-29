@@ -62,10 +62,10 @@ fn parse(input: &str) -> (usize, usize, HashMap<Point, Tile>) {
             let tile = match c {
                 '.' => Tile::Path,
                 '#' => Tile::Forest,
-                '^' => Tile::SlopeUp,
-                'v' => Tile::SlopeDown,
-                '<' => Tile::SlopeLeft,
-                '>' => Tile::SlopeRight,
+                '^' => Tile::Path,
+                'v' => Tile::Path,
+                '<' => Tile::Path,
+                '>' => Tile::Path,
                 v => panic!("Unexpected character in input {}", v),
             };
             let point = Point {
@@ -125,8 +125,8 @@ fn longestPath(map: HashMap<Point, Tile>, width: usize, height: usize) -> usize 
     });
     let mut final_length = 0;
     while let Some(p) = pq.pop() {
+        //println!("Path len: {}", p.length);
         if p.current == end {
-            println!("Found path with len: {}", p.length);
             final_length = final_length.max(p.length);
         }
         let current = p.current;
@@ -189,10 +189,10 @@ mod tests {
     }
 
     #[test]
-    fn example() {
+    fn exampletask2() {
         let example = include_str!("../../example.txt");
         let (w, h, map) = parse(example);
         let result = longestPath(map, w, h);
-        assert_eq!(result, 94);
+        assert_eq!(result, 154);
     }
 }
