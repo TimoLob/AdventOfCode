@@ -1,5 +1,16 @@
 #!/bin/bash
 
+YEAR=2024
+
+if [ -f .env ]; then
+  # Use the .env file if it exists, it should look like this:
+  # SESSION_COOKIE=cookie
+  export $(grep -v '^#' .env | xargs)
+else
+  echo ".env file not found. Exiting."
+  exit 1
+fi
+
 # Check if DAY is provided as argument
 if [ -z "$1" ]; then
   # No argument provided, prompt user to use the current day
@@ -18,8 +29,6 @@ else
   DAY=$((10#$1))
 fi
 
-YEAR=2024
-SESSION_COOKIE=cookie
 PADDED_DAY=$(printf "%02d" "$DAY")
 CRATE_NAME="day$PADDED_DAY"
 
