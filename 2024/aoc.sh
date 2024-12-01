@@ -19,6 +19,7 @@ if [ -z "$1" ]; then
   # Default to Y if no response
   if [[ -z "$response" || "$response" =~ ^[Yy]$ ]]; then
     DAY=$(date +%d) # Use current day of the month
+    DAY=$((10#$DAY))
     echo "Using current day: $DAY"
   else
     echo "Exiting, no day selected."

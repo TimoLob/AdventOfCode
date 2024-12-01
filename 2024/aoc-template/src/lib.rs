@@ -7,7 +7,6 @@ pub fn part2(input: &str) -> String {
     String::new()
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -21,8 +20,7 @@ mod tests {
     #[test]
     fn test_example_part2() {
         let input = fs::read_to_string("example.txt").expect("Failed to read example.txt");
-        let result = part1(&input);
+        let result = part2(&input);
         assert_eq!(result, ""); // Replace with the actual expected result
     }
 }
-
