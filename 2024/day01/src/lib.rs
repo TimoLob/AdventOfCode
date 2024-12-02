@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, hash::Hash};
+use std::collections::HashMap;
 pub fn part1(input: &str) -> String {
     let lines = input.split('\n');
     let mut left_list = lines
@@ -38,6 +38,7 @@ pub fn part2(input: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
 
     #[test]
     fn test_example() {

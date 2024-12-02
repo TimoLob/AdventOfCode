@@ -1,15 +1,17 @@
-use std::fs;
 pub fn part1(input: &str) -> String {
+    let input = input.trim();
+
     String::new()
 }
-
 pub fn part2(input: &str) -> String {
+    let input = input.trim();
     String::new()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
 
     #[test]
     fn test_example() {
