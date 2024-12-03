@@ -10,9 +10,6 @@ fn verify_report(report: &Vec<i32>) -> i32 {
         // Increasing
         for index in 0..report.len() - 1 {
             let distance = report[index] - report[index + 1];
-            if distance < 0 {
-                return 0;
-            }
             if distance < 1 || distance > 3 {
                 return 0;
             }
@@ -21,9 +18,6 @@ fn verify_report(report: &Vec<i32>) -> i32 {
         // Decreasing
         for index in 0..report.len() - 1 {
             let distance = report[index + 1] - report[index];
-            if distance < 0 {
-                return 0;
-            }
             if distance < 1 || distance > 3 {
                 return 0;
             }
@@ -36,7 +30,6 @@ fn verify_report_part2(report: &Vec<i32>) -> i32 {
     if verify_report(report) == 1 {
         return 1;
     }
-    // Not a fan of this O(n^2) solution, but it finishes instantly
     for index in 0..report.len() {
         let mut new_report: Vec<i32> = Vec::new();
         for i in 0..report.len() {
@@ -50,6 +43,7 @@ fn verify_report_part2(report: &Vec<i32>) -> i32 {
     }
     0
 }
+
 pub fn part1(input: &str) -> String {
     let input = input.trim();
     let lines = input.split('\n');
@@ -65,6 +59,7 @@ pub fn part1(input: &str) -> String {
         .fold(0, |acc: i32, report| verify_report(report) + acc);
     result.to_string()
 }
+
 pub fn part2(input: &str) -> String {
     let input = input.trim();
     let lines = input.split('\n');

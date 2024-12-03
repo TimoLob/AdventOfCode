@@ -1,11 +1,10 @@
 pub fn part1(input: &str) -> String {
     let input = input.trim();
-
-    String::new()
+    todo!()
 }
 pub fn part2(input: &str) -> String {
     let input = input.trim();
-    String::new()
+    todo!()
 }
 
 #[cfg(test)]
