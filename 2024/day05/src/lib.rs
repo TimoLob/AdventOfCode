@@ -51,21 +51,25 @@ impl Graph {
     }
 
     fn topologic_sort(&mut self) -> Vec<Page> {
-        let len = self.nodes.len();
+        // We just need to sort the first half
+        let len = self.nodes.len() / 2 + 1;
         let mut result: Vec<Page> = Vec::new();
         while result.len() != len {
             let (&starting_point, _) = self
+                // Find node with no outgoing edges (no pages need to come before it)
                 .edges
                 .iter()
                 .find(|(_, v)| v.is_empty())
                 .expect("Should find starting point.");
 
             result.push(starting_point);
+            // Iterate over all incoming edges (pages that depend on this page) and delete them
             for edge in self.reverse_edges.get(&starting_point).unwrap() {
                 self.edges
                     .entry(*edge)
                     .and_modify(|edges| _ = edges.remove(&starting_point));
             }
+            // Delete this node from the graph
             self.nodes.remove(&starting_point);
             self.edges.remove(&starting_point);
             self.reverse_edges.remove(&starting_point);
@@ -94,7 +98,7 @@ fn fix_update(line: &str, update_rules: &HashMap<Page, Vec<Page>>) -> Page {
         }
     }
     let sort = graph.topologic_sort();
-    sort[sort.len() / 2]
+    sort[sort.len() - 1]
 }
 
 pub fn part1(input: &str) -> String {
