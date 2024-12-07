@@ -27,14 +27,11 @@ fn is_valid_equation_part2(eq: &Equation) -> bool {
 }
 
 fn cut_off(a: i64, b: i64) -> Option<i64> {
-    let a = a.to_string();
-    let b = b.to_string();
-    if a.ends_with(&b) {
-        let trimmed = &a[..a.len() - b.len()];
-        if trimmed.is_empty() {
-            return Some(0);
-        }
-        return trimmed.parse::<i64>().ok();
+    let blen = (b as f64).log10().floor() as u32 + 1;
+
+    let divisor: i64 = 10i64.pow(blen);
+    if a % divisor == b {
+        return Some(a / divisor);
     }
     None
 }
@@ -47,7 +44,8 @@ fn is_valid_sub_equation_part2(result: i64, numbers: &[i64]) -> bool {
     if result % x == 0 && is_valid_sub_equation_part2(result / x, &numbers[0..numbers.len() - 1]) {
         return true;
     }
-    if result - x >= 0 && is_valid_sub_equation_part2(result - x, &numbers[0..numbers.len() - 1]) {
+    let diff = result - x;
+    if diff >= 0 && is_valid_sub_equation_part2(diff, &numbers[0..numbers.len() - 1]) {
         return true;
     }
     if let Some(cut) = cut_off(result, x) {
