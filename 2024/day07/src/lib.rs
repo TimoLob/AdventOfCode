@@ -23,29 +23,37 @@ fn is_valid_sub_equation(result: i64, numbers: &[i64]) -> bool {
 }
 
 fn is_valid_equation_part2(eq: &Equation) -> bool {
-    is_valid_sub_equation_part2(eq.result, 0, &eq.numbers)
+    is_valid_sub_equation_part2(eq.result, &eq.numbers)
 }
 
-fn concat(a: i64, b: i64) -> i64 {
-    format!("{a}{b}").parse::<i64>().unwrap()
+fn cut_off(a: i64, b: i64) -> Option<i64> {
+    let a = a.to_string();
+    let b = b.to_string();
+    if a.ends_with(&b) {
+        let trimmed = &a[..a.len() - b.len()];
+        if trimmed.is_empty() {
+            return Some(0);
+        }
+        return trimmed.parse::<i64>().ok();
+    }
+    None
 }
 
-fn is_valid_sub_equation_part2(result: i64, current: i64, numbers: &[i64]) -> bool {
+fn is_valid_sub_equation_part2(result: i64, numbers: &[i64]) -> bool {
     if numbers.len() == 0 {
-        return result == current;
+        return result == 0;
     }
-    let x = numbers[0];
-    let mul = current * x;
-    if mul <= result && is_valid_sub_equation_part2(result, mul, &numbers[1..numbers.len()]) {
+    let x = numbers[numbers.len() - 1];
+    if result % x == 0 && is_valid_sub_equation_part2(result / x, &numbers[0..numbers.len() - 1]) {
         return true;
     }
-    let add = current + x;
-    if add <= result && is_valid_sub_equation_part2(result, add, &numbers[1..numbers.len()]) {
+    if result - x >= 0 && is_valid_sub_equation_part2(result - x, &numbers[0..numbers.len() - 1]) {
         return true;
     }
-    let concat = concat(current, x);
-    if concat <= result && is_valid_sub_equation_part2(result, concat, &numbers[1..numbers.len()]) {
-        return true;
+    if let Some(cut) = cut_off(result, x) {
+        if is_valid_sub_equation_part2(cut, &numbers[0..numbers.len() - 1]) {
+            return true;
+        }
     }
 
     false
