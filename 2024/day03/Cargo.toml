@@ -7,3 +7,10 @@ edition = "2021"
 
 [dependencies]
 regex = "1.11.1"
+divan = "0.1.17"
+
+
+[[bench]]
+name = "day03-bench"
+path = "benches/benchmarks.rs"
+harness = false

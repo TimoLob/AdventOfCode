@@ -5,12 +5,16 @@ YEAR=2024
 if [ -f .env ]; then
   # Use the .env file if it exists, it should look like this:
   # SESSION_COOKIE=cookie
-  export $(grep -v '^#' .env | xargs)
+  # USER_AGENT = ...
+  set -a
+  source .env
+  set +a
 else
   echo ".env file not found. Exiting."
   exit 1
 fi
-
+#echo "Session cookie $SESSION_COOKIE"
+#echo "User agent : $USER_AGENT"
 # Check if DAY is provided as argument
 if [ -z "$1" ]; then
   echo "No day provided. Would you like to use the current day? (Y/n)"
@@ -38,6 +42,6 @@ cargo generate aoc-template --name $CRATE_NAME
 INPUT_URL="https://adventofcode.com/$YEAR/day/$DAY/input"
 echo $INPUT_URL
 INPUT_FILE="./$CRATE_NAME/input.txt"
-curl --fail --cookie "session=$SESSION_COOKIE" "$INPUT_URL" -o "$INPUT_FILE"
+curl --fail --cookie "session=$SESSION_COOKIE" "$INPUT_URL" --user-agent "$USER_AGENT" -o "$INPUT_FILE"
 ## Remove Trailing newline from input file
 sed -i '${/^$/d}' "$INPUT_FILE"
