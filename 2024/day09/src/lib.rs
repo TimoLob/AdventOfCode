@@ -106,7 +106,7 @@ pub fn part2(input: &str) -> String {
     let mut highest_file = files[highest_file_idx];
 
     while highest_file.id > 0 {
-        for i in 0..highest_file_idx - 1 {
+        for i in 0..highest_file_idx {
             let file = files[i]; // Empty Space
             if is_free(&file) && file.size == highest_file.size {
                 files[i].id = highest_file.id;
