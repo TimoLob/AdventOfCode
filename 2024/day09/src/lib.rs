@@ -98,9 +98,11 @@ pub fn part2(input: &str) -> String {
      *          then set highest file to be whitespace
      *          then insert highest file before whitespace
      *          break
-     *  Loop backwards through the list
-     *   If 2 Empty spaces in a row, add sizes into lower index one and set the higher index one to 0
      *  Loop to find next highest file id
+     *
+     *
+     *  It is not necessary to "merge" empty spaces since a file cannot move on top of a file that
+     *  already moved (since we move left from right to left)
      * */
     let mut highest_file_idx = files.len() - 1;
     let mut highest_file = files[highest_file_idx];
@@ -112,8 +114,7 @@ pub fn part2(input: &str) -> String {
                 files[i].id = highest_file.id;
                 files[highest_file_idx].id = usize::MAX;
                 break;
-            }
-            if is_free(&file) && file.size > highest_file.size {
+            } else if is_free(&file) && file.size > highest_file.size {
                 files[i].size -= highest_file.size;
                 files[highest_file_idx].id = usize::MAX;
                 files.insert(i, highest_file);
@@ -121,20 +122,8 @@ pub fn part2(input: &str) -> String {
             }
         }
 
-        //let mut indices_to_remove: Vec<usize> = vec![];
-        for i in (1..files.len()).rev() {
-            let f1 = files[i];
-            let f2 = files[i - 1];
-
-            if is_free(&f1) && is_free(&f2) {
-                files[i - 1].size += f1.size;
-                //indices_to_remove.push(i);
-                files[i].size = 0;
-            }
-        }
-
         // Find next highest file  & index
-        for i in 0..files.len() {
+        for i in (0..highest_file_idx).rev() {
             if files[i].id == highest_file.id - 1 {
                 highest_file_idx = i;
                 highest_file = files[i];
@@ -146,9 +135,12 @@ pub fn part2(input: &str) -> String {
     let mut total = 0;
     for i in 0..files.len() {
         let file = files[i];
-        let id = if is_free(&file) { 0 } else { file.id }; // if empty, set id to 0
+        if is_free(&file) {
+            index += file.size;
+            continue;
+        }
         for _ in 0..file.size {
-            total += index * id;
+            total += index * file.id;
             index += 1;
         }
     }
