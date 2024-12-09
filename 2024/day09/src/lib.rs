@@ -1,104 +1,40 @@
-#[derive(Debug)]
-struct File {
-    size: usize,
-    id: usize,
-    index: usize,
-}
-
-#[derive(Debug)]
-struct FreeSpace {
-    size: usize,
-    index: usize,
-}
-
-enum ParseState {
-    ReadFile,
-    ReadFree,
-}
-
-fn parse(input: &str) -> (Vec<FreeSpace>, Vec<File>, usize) {
-    let input = input.trim();
-    let mut parsestate = ParseState::ReadFile;
-    let mut fileid = 0;
-    let mut total_free_space = 0;
-    let mut free_spaces: Vec<FreeSpace> = Vec::new();
-    let mut files: Vec<File> = Vec::new();
-    let mut index = 0;
-    input.chars().for_each(|c| match parsestate {
-        ParseState::ReadFile => {
-            parsestate = ParseState::ReadFree;
-            let size = c.to_digit(10).unwrap() as usize;
-            let file = File {
-                size,
-                id: fileid,
-                index,
-            };
-            fileid += 1;
-            index += 1;
-            files.push(file);
-        }
-        ParseState::ReadFree => {
-            parsestate = ParseState::ReadFile;
-            let space = c.to_digit(10).unwrap() as usize;
-            total_free_space += space;
-            let free = FreeSpace { size: space, index };
-            index += 1;
-            free_spaces.push(free);
-        }
-    });
-    free_spaces.push(FreeSpace { size: 0, index });
-    (free_spaces, files, total_free_space)
-}
+use std::cmp::min;
 
 pub fn part1(input: &str) -> String {
-    let (free_spaces, files, total_free_space) = parse(input);
+    let input = input.trim();
 
-    let mut string_repr = "".to_string();
-    let mut index = 0;
-    let mut i = 0;
-    let mut j = 0;
-    let mut current_end_space = 0;
-    while index < free_spaces.last().unwrap().index {
-        let file = &files[i];
-        let free = &free_spaces[j];
-        if file.index == index {
-            for _ in 0..file.size {
-                string_repr.push(file.id.to_string().chars().next().unwrap());
+    let mut files: Vec<usize> = Vec::new();
+    input.chars().enumerate().for_each(|(idx, c)| {
+        if idx % 2 == 0 {
+            for _ in 0..c.to_digit(10).unwrap() {
+                files.push(idx / 2);
             }
-            i += 1;
         }
-        if free.index == index {
-            for _ in 0..free.size {
-                string_repr.push('.');
+    });
+    let mut last_file = files.len() - 1;
+    let mut disk: Vec<usize> = Vec::new();
+    let mut files_processed = 0;
+    input.chars().enumerate().for_each(|(idx, c)| {
+        let size = c.to_digit(10).unwrap();
+
+        if idx % 2 == 0 && files_processed < last_file {
+            for _ in 0..min(size as usize, last_file - files_processed) {
+                disk.push(idx / 2);
+                files_processed += 1;
             }
-            j += 1;
+        } else if idx % 2 == 1 {
+            for _ in 0..size {
+                if last_file > idx {
+                    disk.push(files[last_file]);
+                    last_file -= 1;
+                }
+            }
         }
-        index += 1;
-    }
+    });
+    dbg!(&disk);
 
-    dbg!(&string_repr);
-    let mut string_repr: Vec<char> = string_repr.chars().collect();
-    println!();
-    while current_end_space != total_free_space {
-        let first_dot = string_repr.iter().position(|&c| c == '.').unwrap();
-        let last_num =
-            string_repr.len() - string_repr.iter().rev().position(|&c| c != '.').unwrap() - 1;
-        string_repr[first_dot] = string_repr[last_num];
-        string_repr[last_num] = '.';
-        current_end_space += 1;
-    }
-
-    let mut total = 0;
-    for (idx, c) in string_repr.iter().enumerate() {
-        if !c.is_numeric() {
-            continue;
-        }
-        let num = c.to_digit(10).unwrap();
-        total += idx * num as usize;
-    }
-
-    dbg!(&string_repr);
-    total.to_string()
+    let checksum: usize = disk.iter().enumerate().map(|(idx, f)| idx * f).sum();
+    checksum.to_string()
 }
 pub fn part2(input: &str) -> String {
     let input = input.trim();
