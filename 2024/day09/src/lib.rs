@@ -100,7 +100,6 @@ pub fn part2(input: &str) -> String {
      *          break
      *  Loop backwards through the list
      *   If 2 Empty spaces in a row, add sizes into lower index one and set the higher index one to 0
-     *  Loop through indices marked for deletion and delete
      *  Loop to find next highest file id
      * */
     let mut highest_file_idx = files.len() - 1;
