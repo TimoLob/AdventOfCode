@@ -1,0 +1,22 @@
+   Compiling day07 v0.1.0 (/home/timo/CodingPractice/AoC/2024/day07)
+    Finished `bench` profile [optimized] target(s) in 0.43s
+     Running unittests src/lib.rs (target/release/deps/day07-47b8619146db6317)
+
+running 2 tests
+test tests::test_example ... ignored
+test tests::test_example_part2 ... ignored
+
+test result: ok. 0 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/release/deps/day07-2da84b682b36f5d6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running benches/benchmarks.rs (target/release/deps/day07_bench-88ccfe7264991926)
+Timer precision: 17 ns
+day07_bench      fastest       │ slowest       │ median        │ mean          │ samples │ iters
+├─ bench_part_1  225.1 µs      │ 436 µs        │ 228.8 µs      │ 240.8 µs      │ 100     │ 100
+╰─ bench_part_2  546 µs        │ 578.7 µs      │ 557.3 µs      │ 557.5 µs      │ 100     │ 100
+

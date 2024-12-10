@@ -1,0 +1,21 @@
+    Finished `bench` profile [optimized] target(s) in 0.02s
+     Running unittests src/lib.rs (target/release/deps/day04-3e015fd344c49817)
+
+running 2 tests
+test tests::test_example ... ignored
+test tests::test_example_part2 ... ignored
+
+test result: ok. 0 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/release/deps/day04-c7288a156c05bc72)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running benches/benchmarks.rs (target/release/deps/day04_bench-c3292ce377f93abf)
+Timer precision: 31 ns
+day04_bench      fastest       │ slowest       │ median        │ mean          │ samples │ iters
+├─ bench_part_1  141.5 µs      │ 531.4 µs      │ 148.5 µs      │ 180.4 µs      │ 100     │ 100
+╰─ bench_part_2  64.17 µs      │ 101.3 µs      │ 70.74 µs      │ 71.49 µs      │ 100     │ 100
+
