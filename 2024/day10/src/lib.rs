@@ -1,7 +1,4 @@
-use std::{
-    cmp::Ordering,
-    collections::{BinaryHeap, HashMap, HashSet},
-};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use glam::IVec2;
 
@@ -64,27 +61,10 @@ struct Tile {
     paths: usize,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct State {
-    height: usize,
-    position: IVec2,
-}
-
-impl Ord for State {
-    fn cmp(&self, other: &Self) -> Ordering {
-        other.height.cmp(&self.height)
-    }
-}
-
-impl PartialOrd for State {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
 pub fn part2(input: &str) -> String {
     let input = input.trim();
     let mut map: HashMap<IVec2, Tile> = HashMap::new();
-    let mut heap: BinaryHeap<State> = BinaryHeap::new();
+    let mut queue: VecDeque<IVec2> = VecDeque::new();
     input.lines().enumerate().for_each(|(y, line)| {
         line.chars().enumerate().for_each(|(x, c)| {
             let height = c.to_digit(10).unwrap() as usize;
@@ -97,30 +77,24 @@ pub fn part2(input: &str) -> String {
                 tile,
             );
             if height == 0 {
-                heap.push(State {
-                    height: 0,
-                    position: IVec2 {
-                        x: x as i32,
-                        y: y as i32,
-                    },
+                queue.push_back(IVec2 {
+                    x: x as i32,
+                    y: y as i32,
                 });
             }
         })
     });
-    // https://doc.rust-lang.org/std/collections/binary_heap/index.html
 
-    while let Some(State { height, position }) = heap.pop() {
+    while let Some(position) = queue.pop_front() {
         let tile = map.get_mut(&position).unwrap();
+        let height = tile.height;
         tile.paths += 1;
         let directions = vec![IVec2::NEG_X, IVec2::X, IVec2::NEG_Y, IVec2::Y];
         directions.iter().for_each(|dir| {
             let new_pos = position + dir;
             if let Some(next_tile) = map.get(&new_pos) {
                 if next_tile.height == height + 1 {
-                    heap.push(State {
-                        height: height + 1,
-                        position: new_pos,
-                    });
+                    queue.push_back(new_pos);
                 }
             }
         });

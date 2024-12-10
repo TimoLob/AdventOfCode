@@ -1,0 +1,16 @@
+
+running 2 tests
+test tests::test_example ... ignored
+test tests::test_example_part2 ... ignored
+
+test result: ok. 0 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+day10_bench      fastest       │ slowest       │ median        │ mean          │ samples │ iters
+├─ bench_part_1  568 µs        │ 625.6 µs      │ 575.7 µs      │ 577 µs        │ 100     │ 100
+╰─ bench_part_2  429.6 µs      │ 462.5 µs      │ 435.5 µs      │ 436.6 µs      │ 100     │ 100
+
