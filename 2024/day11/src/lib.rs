@@ -13,43 +13,6 @@ fn split_stone(stone: &Stone) -> Option<(Stone, Stone)> {
     Some((upper_half, lower_half))
 }
 
-pub fn part1(input: &str) -> String {
-    let input = input.trim();
-    let input = input.split(' ').map(|x| x.parse::<Stone>().unwrap());
-
-    let mut stones: HashMap<Stone, usize> = HashMap::new();
-    input.for_each(|stone| _ = stones.entry(stone).and_modify(|x| *x += 1).or_insert(1));
-
-    let num_blinks = 25;
-    for _blink in 0..num_blinks {
-        let mut new_stones: HashMap<Stone, usize> = HashMap::new();
-        stones.iter().for_each(|(stone, number)| {
-            let r = process_stone(stone);
-            match r {
-                Result::SingleStone(stone) => {
-                    _ = new_stones
-                        .entry(stone)
-                        .and_modify(|x| *x += number)
-                        .or_insert(*number);
-                }
-                Result::TwoStones(left, right) => {
-                    _ = new_stones
-                        .entry(left)
-                        .and_modify(|x| *x += number)
-                        .or_insert(*number);
-                    _ = new_stones
-                        .entry(right)
-                        .and_modify(|x| *x += number)
-                        .or_insert(*number)
-                }
-            };
-        });
-        stones = new_stones;
-    }
-    let total: usize = stones.iter().map(|(_, num)| *num).sum();
-    total.to_string()
-}
-
 enum Result {
     SingleStone(Stone),
     TwoStones(Stone, Stone),
@@ -65,16 +28,14 @@ fn process_stone(stone: &Stone) -> Result {
     }
 }
 
-pub fn part2(input: &str) -> String {
-    let input = input.trim();
-    let input = input.split(' ').map(|x| x.parse::<Stone>().unwrap());
+fn blink(input: &Vec<Stone>, num_blinks: usize) -> usize {
+    let mut stones: HashMap<Stone, usize> = HashMap::with_capacity(input.len());
+    input
+        .iter()
+        .for_each(|stone| _ = stones.entry(*stone).and_modify(|x| *x += 1).or_insert(1));
 
-    let mut stones: HashMap<Stone, usize> = HashMap::new();
-    input.for_each(|stone| _ = stones.entry(stone).and_modify(|x| *x += 1).or_insert(1));
-
-    let num_blinks = 75;
     for _blink in 0..num_blinks {
-        let mut new_stones: HashMap<Stone, usize> = HashMap::new();
+        let mut new_stones: HashMap<Stone, usize> = HashMap::with_capacity(stones.len() * 2);
         stones.iter().for_each(|(stone, number)| {
             let r = process_stone(stone);
             match r {
@@ -99,7 +60,25 @@ pub fn part2(input: &str) -> String {
         stones = new_stones;
     }
     let total: usize = stones.iter().map(|(_, num)| *num).sum();
-    total.to_string()
+    total
+}
+
+pub fn part1(input: &str) -> String {
+    let input = input.trim();
+    let input = input
+        .split(' ')
+        .map(|x| x.parse::<Stone>().unwrap())
+        .collect::<Vec<Stone>>();
+    blink(&input, 25).to_string()
+}
+
+pub fn part2(input: &str) -> String {
+    let input = input.trim();
+    let input = input
+        .split(' ')
+        .map(|x| x.parse::<Stone>().unwrap())
+        .collect::<Vec<Stone>>();
+    blink(&input, 75).to_string()
 }
 
 #[cfg(test)]
