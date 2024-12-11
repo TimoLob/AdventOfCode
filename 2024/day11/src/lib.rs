@@ -15,28 +15,39 @@ fn split_stone(stone: &Stone) -> Option<(Stone, Stone)> {
 
 pub fn part1(input: &str) -> String {
     let input = input.trim();
-    let mut stones: Vec<Stone> = input
-        .split(' ')
-        .map(|x| x.parse::<Stone>().unwrap())
-        .collect();
+    let input = input.split(' ').map(|x| x.parse::<Stone>().unwrap());
+
+    let mut stones: HashMap<Stone, usize> = HashMap::new();
+    input.for_each(|stone| _ = stones.entry(stone).and_modify(|x| *x += 1).or_insert(1));
 
     let num_blinks = 25;
-    for _ in 0..num_blinks {
-        let len = stones.len();
-        for i in 0..len {
-            let stone = stones[i];
-            if stone == 0 {
-                stones[i] = 1;
-            } else if let Some((l, r)) = split_stone(&stone) {
-                stones[i] = l;
-                stones.push(r);
-            } else {
-                stones[i] = stone * 2024;
-            }
-        }
+    for _blink in 0..num_blinks {
+        let mut new_stones: HashMap<Stone, usize> = HashMap::new();
+        stones.iter().for_each(|(stone, number)| {
+            let r = process_stone(stone);
+            match r {
+                Result::SingleStone(stone) => {
+                    _ = new_stones
+                        .entry(stone)
+                        .and_modify(|x| *x += number)
+                        .or_insert(*number);
+                }
+                Result::TwoStones(left, right) => {
+                    _ = new_stones
+                        .entry(left)
+                        .and_modify(|x| *x += number)
+                        .or_insert(*number);
+                    _ = new_stones
+                        .entry(right)
+                        .and_modify(|x| *x += number)
+                        .or_insert(*number)
+                }
+            };
+        });
+        stones = new_stones;
     }
-
-    stones.len().to_string()
+    let total: usize = stones.iter().map(|(_, num)| *num).sum();
+    total.to_string()
 }
 
 enum Result {
