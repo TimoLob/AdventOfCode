@@ -117,7 +117,7 @@ mod tests {
     fn test_example_part2() {
         let input = fs::read_to_string("example.txt").expect("Failed to read example.txt");
         let result = part2(&input);
-        assert_eq!(result, ""); // Replace with the actual expected result
+        assert_eq!(result, "65601038650482"); // Replace with the actual expected result
     }
 
     #[test]
