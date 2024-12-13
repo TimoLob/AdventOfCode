@@ -7,7 +7,8 @@ Generate a new project from the template:
 It will default to the current day if none is provided.
 
 
-## Stars
+## Progress 26/50 
+
 | Day | Stars |
 |-----|-------|
 |  1  | ⭐⭐   |
@@ -41,6 +42,4 @@ It will default to the current day if none is provided.
 
 ```sh
 cargo install cargo-generate
-```
-```
 ```
