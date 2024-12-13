@@ -1,0 +1,1464 @@
+warning: unused variable: `other_crop`
+  --> src/lib.rs:18:21
+   |
+18 |         if let Some(other_crop) = grid.get(new_pos.0, new_pos.1).filter(|&c| c == crop) {
+   |                     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_other_crop`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `other_crop`
+  --> src/lib.rs:27:21
+   |
+27 |         if let Some(other_crop) = grid.get(new_pos.0, new_pos.1).filter(|&c| c == crop) {
+   |                     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_other_crop`
+
+warning: unused variable: `other_crop`
+  --> src/lib.rs:36:21
+   |
+36 |         if let Some(other_crop) = grid.get(new_pos.0, new_pos.1).filter(|&c| c == crop) {
+   |                     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_other_crop`
+
+warning: unused variable: `other_crop`
+  --> src/lib.rs:45:21
+   |
+45 |         if let Some(other_crop) = grid.get(new_pos.0, new_pos.1).filter(|&c| c == crop) {
+   |                     ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_other_crop`
+
+warning: unused variable: `input`
+  --> src/lib.rs:92:9
+   |
+92 |     let input = input.trim();
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_input`
+
+warning: `day12` (lib) generated 5 warnings
+warning: `day12` (lib test) generated 5 warnings (5 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running unittests src/lib.rs (target/debug/deps/day12-3e01744b998108fb)
+
+running 3 tests
+test tests::test_example_part2 ... FAILED
+test tests::test_example2 ... FAILED
+test tests::test_example ... FAILED
+
+failures:
+
+---- tests::test_example_part2 stdout ----
+thread 'tests::test_example_part2' panicked at src/lib.rs:93:5:
+not yet implemented
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tests::test_example2 stdout ----
+All elements:
+            
+  O O O O O 
+  O X O X O 
+  O O O O O 
+  O X O X O 
+  O O O O O 
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+All elements:
+            
+            
+    X   X   
+            
+    X   X   
+            
+thread 'tests::test_example2' panicked at src/lib.rs:112:9:
+assertion `left == right` failed
+  left: "852"
+ right: "772"
+
+---- tests::test_example stdout ----
+All elements:
+                      
+  R R V V V V V M M M 
+  R R V V V V V I I M 
+  R R R R V I I I I M 
+  R R R C V V I I I I 
+  I I R C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+      V V V V V M M M 
+      V V V V V I I M 
+          V I I I I M 
+        C V V I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+      V V V V V M M M 
+      V V V V V I I M 
+          V I I I I M 
+        C V V I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                M M M 
+                I I M 
+            I I I I M 
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                M M M 
+                I I M 
+            I I I I M 
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                M M M 
+                I I M 
+            I I I I M 
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                M M M 
+                I I M 
+            I I I I M 
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                M M M 
+                I I M 
+            I I I I M 
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                I I   
+            I I I I   
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                I I   
+            I I I I   
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                I I   
+            I I I I   
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                I I   
+            I I I I   
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                I I   
+            I I I I   
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                I I   
+            I I I I   
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                I I   
+            I I I I   
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                I I   
+            I I I I   
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                I I   
+            I I I I   
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                I I   
+            I I I I   
+        C     I I I I 
+  I I   C C C I I S S 
+  I I C C J C C I I S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+        C             
+  I I   C C C     S S 
+  I I C C J C C     S 
+  C C C J J J J J J J 
+  C C F F C J J J E E 
+  F C F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+  I I             S S 
+  I I     J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+  I I             S S 
+  I I     J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+  I I             S S 
+  I I     J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+  I I             S S 
+  I I     J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+  I I             S S 
+  I I     J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+  I I             S S 
+  I I     J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+  I I             S S 
+  I I     J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                  S S 
+          J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                  S S 
+          J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                  S S 
+          J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                  S S 
+          J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                  S S 
+          J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                  S S 
+          J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                  S S 
+          J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                  S S 
+          J         S 
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+          J           
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+          J           
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+          J           
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+          J           
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+          J           
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+          J           
+        J J J J J J J 
+      F F C J J J E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+      F F C       E E 
+  F   F F F E E E E E 
+  F F F F E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C       E E 
+            E E E E E 
+          E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C       E E 
+            E E E E E 
+          E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C       E E 
+            E E E E E 
+          E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C       E E 
+            E E E E E 
+          E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C       E E 
+            E E E E E 
+          E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C       E E 
+            E E E E E 
+          E E E E E E 
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+All elements:
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+          C           
+                      
+                      
+thread 'tests::test_example' panicked at src/lib.rs:105:9:
+assertion `left == right` failed
+  left: "2357"
+ right: "1930"
+
+
+failures:
+    tests::test_example
+    tests::test_example2
+    tests::test_example_part2
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`
