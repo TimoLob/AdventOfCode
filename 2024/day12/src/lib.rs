@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use array2d::Array2D;
 
@@ -58,10 +58,6 @@ fn process_area(grid: &mut Array2D<char>, pos: (usize, usize)) -> usize {
     area * perimeter
 }
 
-// Hint : A region has the same amount of sides as corners.
-//
-//
-//
 fn process_area_part2(grid: &mut Array2D<char>, pos: (usize, usize)) -> usize {
     let crop = grid.get(pos.0, pos.1).unwrap();
     if *crop == ' ' {
@@ -69,8 +65,14 @@ fn process_area_part2(grid: &mut Array2D<char>, pos: (usize, usize)) -> usize {
     }
     let mut queue: VecDeque<(usize, usize)> = VecDeque::from(vec![pos]);
     let mut area = 0;
-    let mut perimeter = 0;
     let mut already_handled: HashSet<(usize, usize)> = HashSet::new();
+
+    // Keep edges for each x/y coordinate. Later sort them and look for gaps.
+    let mut top_edges: HashMap<usize, Vec<usize>> = HashMap::new();
+    let mut bottom_edges: HashMap<usize, Vec<usize>> = HashMap::new();
+    let mut left_edges: HashMap<usize, Vec<usize>> = HashMap::new();
+    let mut right_edges: HashMap<usize, Vec<usize>> = HashMap::new();
+
     already_handled.insert(pos);
     while !queue.is_empty() {
         let pos = queue.pop_front().unwrap();
@@ -82,7 +84,10 @@ fn process_area_part2(grid: &mut Array2D<char>, pos: (usize, usize)) -> usize {
                 already_handled.insert(new_pos);
             }
         } else {
-            perimeter += 1;
+            top_edges
+                .entry(pos.0)
+                .and_modify(|v| v.push(pos.1))
+                .or_insert(vec![pos.1]);
         }
         let new_pos = (pos.0 + 1, pos.1);
         if let Some(_other_crop) = grid.get(new_pos.0, new_pos.1).filter(|&c| c == crop) {
@@ -91,7 +96,10 @@ fn process_area_part2(grid: &mut Array2D<char>, pos: (usize, usize)) -> usize {
                 already_handled.insert(new_pos);
             }
         } else {
-            perimeter += 1;
+            bottom_edges
+                .entry(pos.0)
+                .and_modify(|v| v.push(pos.1))
+                .or_insert(vec![pos.1]);
         }
         let new_pos = (pos.0, pos.1 - 1);
         if let Some(_other_crop) = grid.get(new_pos.0, new_pos.1).filter(|&c| c == crop) {
@@ -100,7 +108,10 @@ fn process_area_part2(grid: &mut Array2D<char>, pos: (usize, usize)) -> usize {
                 already_handled.insert(new_pos);
             }
         } else {
-            perimeter += 1;
+            left_edges
+                .entry(pos.1)
+                .and_modify(|v| v.push(pos.0))
+                .or_insert(vec![pos.0]);
         }
         let new_pos = (pos.0, pos.1 + 1);
         if let Some(_other_crop) = grid.get(new_pos.0, new_pos.1).filter(|&c| c == crop) {
@@ -109,18 +120,58 @@ fn process_area_part2(grid: &mut Array2D<char>, pos: (usize, usize)) -> usize {
                 already_handled.insert(new_pos);
             }
         } else {
-            perimeter += 1;
+            right_edges
+                .entry(pos.1)
+                .and_modify(|v| v.push(pos.0))
+                .or_insert(vec![pos.0]);
         }
     }
     already_handled
         .iter()
         .for_each(|&pos| _ = grid.set(pos.0, pos.1, ' '));
 
-    let mut corners = 0;
+    let mut sides = 0;
+    top_edges.into_iter().for_each(|(_x, mut v)| {
+        v.sort();
+        for i in 0..v.len() - 1 {
+            if v[i] + 1 != v[i + 1] {
+                sides += 1;
+            }
+        }
+        sides += 1;
+    });
+    bottom_edges.into_iter().for_each(|(_x, mut v)| {
+        v.sort();
+        for i in 0..v.len() - 1 {
+            if v[i] + 1 != v[i + 1] {
+                sides += 1;
+            }
+        }
+        sides += 1;
+    });
+    left_edges.into_iter().for_each(|(_x, mut v)| {
+        v.sort();
+        for i in 0..v.len() - 1 {
+            if v[i] + 1 != v[i + 1] {
+                sides += 1;
+            }
+        }
+        sides += 1;
+    });
+    right_edges.into_iter().for_each(|(_x, mut v)| {
+        v.sort();
+        for i in 0..v.len() - 1 {
+            if v[i] + 1 != v[i + 1] {
+                sides += 1;
+            }
+        }
+        sides += 1;
+    });
 
-    area * perimeter
+    area * sides
 }
 
+#[allow(dead_code)]
 fn print_grid(array: &Array2D<char>) {
     println!("All elements:");
     for row_iter in array.rows_iter() {
@@ -205,26 +256,26 @@ mod tests {
     #[test]
     fn test_example_e_part2() {
         let input = fs::read_to_string("exampleE.txt").expect("Failed to read example.txt");
-        let result = part1(&input);
+        let result = part2(&input);
         assert_eq!(result, "236"); // Replace with the actual expected result
     }
     #[test]
     fn test_example2_part2() {
         let input = fs::read_to_string("example2.txt").expect("Failed to read example.txt");
-        let result = part1(&input);
+        let result = part2(&input);
         assert_eq!(result, "436"); // Replace with the actual expected result
     }
 
     #[test]
     fn test_example4_part2() {
         let input = fs::read_to_string("example4.txt").expect("Failed to read example.txt");
-        let result = part1(&input);
+        let result = part2(&input);
         assert_eq!(result, "368"); // Replace with the actual expected result
     }
     #[test]
     fn test_example_part2() {
         let input = fs::read_to_string("example.txt").expect("Failed to read example.txt");
-        let result = part1(&input);
+        let result = part2(&input);
         assert_eq!(result, "1206"); // Replace with the actual expected result
     }
 }
