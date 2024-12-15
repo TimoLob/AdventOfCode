@@ -25,7 +25,7 @@ It will default to the current day if none is provided.
 | 12  | ⭐⭐   |
 | 13  | ⭐⭐   |
 | 14  | ⭐⭐   |
-| 15  |       |
+| 15  | ⭐⭐   |
 | 16  |       |
 | 17  |       |
 | 18  |       |
