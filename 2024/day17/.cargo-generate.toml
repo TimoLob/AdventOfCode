@@ -1,0 +1,5 @@
+[template]
+name = "aoc-template"
+description = "A Rust project template for Advent of Code challenges"
+include = ["src", "Cargo.toml", "example.txt", "input.txt", ".gitignore"]
+
