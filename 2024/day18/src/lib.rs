@@ -89,6 +89,16 @@ pub fn part2(input: &str) -> String {
     res.to_string()
 }
 
+pub fn part2_challenge(input: &str) -> String {
+    let input = input.trim();
+
+    let bytes = parse(input);
+
+    let res = find_first_blocking(212, 212, &bytes);
+
+    res.to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
