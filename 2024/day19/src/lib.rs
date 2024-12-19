@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
-use rayon::prelude::*;
-
+// Struct to hold cache
 struct PatternMatcher<'a> {
     avail_towels: Vec<&'a str>,
-    cache: HashMap<&'a str, bool>,
+    cache: HashMap<&'a str, usize>,
 }
 
 impl<'a> PatternMatcher<'a> {
@@ -15,25 +14,25 @@ impl<'a> PatternMatcher<'a> {
         }
     }
 
-    fn is_possible(&mut self, pattern: &'a str) -> bool {
+    fn is_possible(&mut self, pattern: &'a str) -> usize {
         if pattern.is_empty() {
-            return true;
+            return 1;
         }
 
         if let Some(cached) = self.cache.get(pattern) {
             return *cached;
         }
+        let mut ways_to_arange = 0;
         let towels = self.avail_towels.clone();
         for &towel in towels.iter() {
-            if pattern.starts_with(towel) && self.is_possible(&pattern[towel.len()..pattern.len()])
-            {
-                self.cache.insert(pattern, true);
-                return true;
+            if pattern.starts_with(towel) {
+                let possible_ways = self.is_possible(&pattern[towel.len()..pattern.len()]);
+                ways_to_arange += possible_ways;
             }
         }
 
-        self.cache.insert(pattern, false);
-        false
+        self.cache.insert(pattern, ways_to_arange);
+        ways_to_arange
     }
 }
 
@@ -51,13 +50,19 @@ pub fn part1(input: &str) -> String {
     let mut pattern_matcher = PatternMatcher::new(avail_towels);
     let total = wanted_patterns
         .iter()
-        .filter(|&pat| pattern_matcher.is_possible(pat))
+        .filter(|&pat| pattern_matcher.is_possible(pat) > 0)
         .count();
     total.to_string()
 }
 pub fn part2(input: &str) -> String {
     let input = input.trim();
-    todo!()
+    let (avail_towels, wanted_patterns) = parse(input);
+    let mut pattern_matcher = PatternMatcher::new(avail_towels);
+    let total: usize = wanted_patterns
+        .iter()
+        .map(|&pat| pattern_matcher.is_possible(pat))
+        .sum();
+    total.to_string()
 }
 
 #[cfg(test)]
@@ -75,6 +80,6 @@ mod tests {
     fn test_example_part2() {
         let input = fs::read_to_string("example.txt").expect("Failed to read example.txt");
         let result = part2(&input);
-        assert_eq!(result, ""); // Replace with the actual expected result
+        assert_eq!(result, "16"); // Replace with the actual expected result
     }
 }
