@@ -72,6 +72,7 @@ fn find_first_blocking(width: u32, height: u32, bytes: &Vec<IVec2>) -> IVec2 {
             break;
         }
         let res = find_path(width, height, bytes, mid);
+        dbg!("-");
         match res {
             Some(_) => min = mid,
             None => max = mid,

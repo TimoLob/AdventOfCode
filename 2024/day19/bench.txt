@@ -1,4 +1,5 @@
-    Finished `bench` profile [optimized] target(s) in 0.01s
+   Compiling day19 v0.1.0 (/home/timo/CodingPractice/AoC/2024/day19)
+    Finished `bench` profile [optimized] target(s) in 0.35s
      Running unittests src/lib.rs (target/release/deps/day19-1ab1dc0e174d7b88)
 
 running 2 tests
@@ -16,6 +17,6 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running benches/benchmarks.rs (target/release/deps/day19_bench-4f70520799b2fed0)
 Timer precision: 17 ns
 day19_bench      fastest       │ slowest       │ median        │ mean          │ samples │ iters
-├─ bench_part_1  21.05 ms      │ 22.87 ms      │ 21.17 ms      │ 21.19 ms      │ 100     │ 100
-╰─ bench_part_2  20.96 ms      │ 21.5 ms       │ 21.21 ms      │ 21.26 ms      │ 100     │ 100
+├─ bench_part_1  7.525 ms      │ 10.76 ms      │ 7.556 ms      │ 7.591 ms      │ 100     │ 100
+╰─ bench_part_2  20.42 ms      │ 22.93 ms      │ 20.6 ms       │ 20.92 ms      │ 100     │ 100
 

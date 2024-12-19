@@ -1,16 +1,25 @@
 use std::collections::HashMap;
 
+// Flag to early stop in part 1
+#[derive(Eq, PartialEq)]
+enum Part {
+    Part1,
+    Part2,
+}
+
 // Struct to hold cache
 struct PatternMatcher<'a> {
     avail_towels: Vec<&'a str>,
     cache: HashMap<&'a str, usize>,
+    part: Part,
 }
 
 impl<'a> PatternMatcher<'a> {
-    fn new(towels: Vec<&'a str>) -> Self {
+    fn new(towels: Vec<&'a str>, part: Part) -> Self {
         PatternMatcher {
             avail_towels: towels,
             cache: HashMap::new(),
+            part,
         }
     }
 
@@ -23,10 +32,16 @@ impl<'a> PatternMatcher<'a> {
             return *cached;
         }
         let mut ways_to_arange = 0;
-        let towels = self.avail_towels.clone();
-        for &towel in towels.iter() {
+        for i in 0..self.avail_towels.len() {
+            let towel = self.avail_towels[i];
             if pattern.starts_with(towel) {
-                let possible_ways = self.is_possible(&pattern[towel.len()..pattern.len()]);
+                let possible_ways = self.is_possible(&pattern[towel.len()..]);
+
+                // Early stopping for part 1
+                if self.part == Part::Part1 && possible_ways > 0 {
+                    self.cache.insert(pattern, 1);
+                    return 1;
+                }
                 ways_to_arange += possible_ways;
             }
         }
@@ -47,7 +62,7 @@ fn parse(input: &str) -> (Vec<&str>, Vec<&str>) {
 pub fn part1(input: &str) -> String {
     let input = input.trim();
     let (avail_towels, wanted_patterns) = parse(input);
-    let mut pattern_matcher = PatternMatcher::new(avail_towels);
+    let mut pattern_matcher = PatternMatcher::new(avail_towels, Part::Part1);
     let total = wanted_patterns
         .iter()
         .filter(|&pat| pattern_matcher.is_possible(pat) > 0)
@@ -57,7 +72,7 @@ pub fn part1(input: &str) -> String {
 pub fn part2(input: &str) -> String {
     let input = input.trim();
     let (avail_towels, wanted_patterns) = parse(input);
-    let mut pattern_matcher = PatternMatcher::new(avail_towels);
+    let mut pattern_matcher = PatternMatcher::new(avail_towels, Part::Part2);
     let total: usize = wanted_patterns
         .iter()
         .map(|&pat| pattern_matcher.is_possible(pat))
