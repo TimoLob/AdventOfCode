@@ -2,6 +2,7 @@ use core::panic;
 use std::collections::HashMap;
 
 use glam::IVec2;
+use pathfinding::prelude::dijkstra;
 
 #[derive(Debug, Hash, Clone, Copy, PartialEq, Eq)]
 enum Direction {
@@ -16,7 +17,6 @@ enum Key {
     Numeric(usize),
     Directional(Direction),
     A,
-    Gap,
 }
 
 impl Direction {
@@ -30,16 +30,15 @@ impl Direction {
     }
 }
 
+#[derive(Clone, Debug)]
 struct Keypad {
-    movements: HashMap<(Key, Key), IVec2>,
     keys: HashMap<Key, IVec2>,
-    current: IVec2,
+    positions: HashMap<IVec2, Key>,
 }
 impl Keypad {
     fn new_numeric() -> Self {
-        let mut movements = HashMap::new();
-
         let mut keys = HashMap::new();
+        let mut positions = HashMap::new();
         let key_vec = vec![
             (Key::Numeric(7), IVec2 { x: 0, y: 0 }),
             (Key::Numeric(8), IVec2 { x: 1, y: 0 }),
@@ -50,106 +49,109 @@ impl Keypad {
             (Key::Numeric(1), IVec2 { x: 0, y: 2 }),
             (Key::Numeric(2), IVec2 { x: 1, y: 2 }),
             (Key::Numeric(3), IVec2 { x: 2, y: 1 }),
-            (Key::Gap, IVec2 { x: 0, y: 2 }),
             (Key::Numeric(0), IVec2 { x: 1, y: 2 }),
             (Key::A, IVec2 { x: 2, y: 2 }),
         ];
-        key_vec
-            .iter()
-            .for_each(|(key, pos)| _ = keys.insert(*key, *pos));
+        key_vec.iter().for_each(|(key, pos)| {
+            _ = keys.insert(*key, *pos);
+            _ = positions.insert(*pos, *key);
+        });
 
-        for (&skey, start_pos) in keys.iter() {
-            for (&tkey, target_pos) in keys.iter() {
-                let direction = target_pos - start_pos;
-
-                movements.insert((skey, tkey), direction);
-            }
-        }
-        dbg!(&keys, &movements);
-        let current = IVec2 { x: 2, y: 2 };
-        Keypad {
-            keys,
-            movements,
-            current,
-        }
+        Keypad { keys, positions }
     }
 
     fn new_directional() -> Self {
-        let mut movements = HashMap::new();
-
         let mut keys = HashMap::new();
+
+        let mut positions = HashMap::new();
         let key_vec = vec![
-            (Key::Gap, IVec2 { x: 0, y: 0 }),
             (Key::Directional(Direction::Up), IVec2 { x: 1, y: 0 }),
             (Key::A, IVec2 { x: 2, y: 0 }),
             (Key::Directional(Direction::Left), IVec2 { x: 0, y: 1 }),
             (Key::Directional(Direction::Down), IVec2 { x: 1, y: 1 }),
             (Key::Directional(Direction::Right), IVec2 { x: 2, y: 1 }),
         ];
-        key_vec
-            .iter()
-            .for_each(|(key, pos)| _ = keys.insert(*key, *pos));
+        key_vec.iter().for_each(|(key, pos)| {
+            _ = keys.insert(*key, *pos);
+            _ = positions.insert(*pos, *key);
+        });
 
-        for (&skey, start_pos) in keys.iter() {
-            for (&tkey, target_pos) in keys.iter() {
-                let direction = target_pos - start_pos;
-
-                movements.insert((skey, tkey), direction);
-            }
-        }
-        dbg!(&keys, &movements);
-        let current = IVec2 { x: 2, y: 0 };
-        Keypad {
-            keys,
-            movements,
-            current,
-        }
-    }
-
-    fn execute(&mut self, key: Key) -> Result<(), ()> {
-        match key {
-            Key::Directional(direction) => {
-                let dir = direction.to_ivec();
-                let new_pos = self.current + dir;
-                if let Some(key) = self
-                    .keys
-                    .iter()
-                    .filter(|(_k, pos)| **pos == new_pos)
-                    .map(|(k, _p)| k)
-                    .next()
-                {
-                    if *key == Key::Gap {
-                        return Err(());
-                    }
-                    self.current = new_pos;
-                    return Ok(());
-                } else {
-                    return Err(());
-                }
-            }
-            _ => return Err(()),
-        };
+        Keypad { keys, positions }
     }
 }
 
-fn parse(input: &str) -> Vec<Vec<Key>> {
-    input
-        .lines()
-        .map(|line| {
-            let mut button_presses = vec![];
-            for c in line.chars() {
-                match c {
-                    'A' => button_presses.push(Key::A),
-                    c if ('0'..='9').contains(&c) => {
-                        button_presses.push(Key::Numeric(c.to_digit(10).unwrap() as usize))
-                    }
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+struct State {
+    cursors: Vec<IVec2>,
+    output: String,
+}
 
-                    c => panic!("unexpected char {}", c),
-                };
+fn press_button(
+    state: &mut State,
+    keypads: &[Keypad],
+    button: Key,
+    index: usize,
+) -> Result<(), ()> {
+    match button {
+        Key::Numeric(c) => state.output.push(c.to_string().chars().next().unwrap()),
+        Key::Directional(direction) => state.cursors[index] += direction.to_ivec(),
+        Key::A => {
+            if index == keypads.len() {
+                state.output.push('A');
+                return Ok(());
             }
-            button_presses
-        })
-        .collect()
+            let cursor = state.cursors[index];
+            let button = keypads[index].positions.get(&cursor);
+            if button.is_none() {
+                return Err(());
+            }
+            let button = button.unwrap();
+            return press_button(state, keypads, *button, index + 1);
+        }
+    }
+    Ok(())
+}
+
+fn succ(state: &State, keypads: &Vec<Keypad>, target: &str) -> Vec<(State, u64)> {
+    let possible_buttons = vec![
+        // Human pressable buttons
+        Key::Directional(Direction::Up),
+        Key::Directional(Direction::Down),
+        Key::Directional(Direction::Left),
+        Key::Directional(Direction::Right),
+        Key::A,
+    ];
+    let mut next_states = vec![];
+    if !target.starts_with(state.output.as_str()) {
+        return next_states;
+    }
+
+    for key in possible_buttons {
+        match key {
+            Key::Numeric(_) => {}
+            Key::Directional(direction) => {
+                let newpos = state.cursors[0] + direction.to_ivec();
+                if keypads[0].positions.contains_key(&newpos) {
+                    let mut next_state = state.clone();
+                    next_state.cursors[0] = newpos;
+                    next_states.push((next_state, 1));
+                }
+            }
+            Key::A => {
+                let mut new_state = state.clone();
+                let r = press_button(&mut new_state, keypads, Key::A, 0);
+                if r.is_ok() {
+                    next_states.push((new_state, 1));
+                }
+            }
+        };
+    }
+
+    next_states
+}
+
+fn parse(input: &str) -> Vec<&str> {
+    input.lines().collect()
 }
 
 pub fn part1(input: &str) -> String {
@@ -159,7 +161,24 @@ pub fn part1(input: &str) -> String {
         Keypad::new_directional(),
         Keypad::new_numeric(),
     ];
+    let cursors = vec![
+        IVec2 { x: 2, y: 0 },
+        IVec2 { x: 2, y: 0 },
+        IVec2 { x: 2, y: 2 },
+    ];
+    let initial_state = State {
+        cursors,
+        output: "".to_string(),
+    };
     let sequences = parse(input);
+
+    let seq = sequences[0];
+
+    dijkstra(
+        &initial_state,
+        |x| succ(x, &keypads, seq),
+        |x| x.output == seq,
+    );
     dbg!(sequences);
     todo!()
 }
