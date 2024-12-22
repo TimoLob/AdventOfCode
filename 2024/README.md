@@ -7,7 +7,7 @@ Generate a new project from the template:
 It will default to the current day if none is provided.
 
 
-## Progress 26/50 
+## Progress 42/50 
 
 | Day | Stars |
 |-----|-------|
@@ -32,7 +32,7 @@ It will default to the current day if none is provided.
 | 19  | ⭐⭐   |
 | 20  | ⭐⭐   |
 | 21  |       |
-| 22  |       |
+| 22  | ⭐⭐   |
 | 23  |       |
 | 24  |       |
 | 25  |       |
