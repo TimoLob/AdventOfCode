@@ -1,4 +1,3 @@
-use fancy_regex::Regex;
 
 
 
@@ -23,9 +22,29 @@ fn is_num_twice(n: u64) -> bool {
 }
 
 fn is_num_repeating(n:u64) -> bool {
-    let s = n.to_string();
-    let re = Regex::new(r"^(\d+)\1+$").expect("Invalid regex");
-    re.is_match(&s).expect("Regex error")
+    let num_digits = digit_count(n);
+    let num_str = n.to_string();
+    //println!("---{}---({})",n,num_digits);
+    for chunk_size in 1..(num_digits/2+1) {
+        //println!("Chunk size {}",chunk_size);
+        let chars = num_str.chars().collect::<Vec<char>>();
+        let exp = 10u64.pow(chunk_size);
+        let lower = n%exp;
+        //println!("lower : {}",lower);
+        let all_match =chars.chunks(chunk_size as usize).all(|chunk| { 
+            let s = String::from_iter(chunk);
+            let num = s.parse::<u64>().expect("Failed to parse chunk");
+            //println!("num : {}",num);
+            num == lower
+        });
+        if all_match {
+            //println!("Repeating");
+            return true
+        }
+    }
+    //println!("Not Repeating");
+    false
+
 }
 
 pub fn part1(input: &str) -> String {
@@ -102,6 +121,27 @@ mod tests {
         assert!(!is_num_twice(95));
         assert!(!is_num_twice(101));
         assert!(!is_num_twice(38593862));
+    }
+
+    #[test]
+    fn is_repeating() {
+        // Twice
+        assert!(is_num_repeating(11));
+        assert!(is_num_repeating(1010));
+        assert!(is_num_repeating(1188511885));
+        assert!(is_num_repeating(446446));
+        assert!(is_num_repeating(38593859));
+        // Thrice
+        assert!(is_num_repeating(111));
+        assert!(is_num_repeating(565656));
+        assert!(is_num_repeating(824824824));
+        // 5 times
+        assert!(is_num_repeating(2121212121));
+
+        // Not 
+        assert!(!is_num_repeating(95));
+        assert!(!is_num_repeating(101));
+        assert!(!is_num_repeating(38593862));
     }
 
 }

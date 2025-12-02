@@ -1,0 +1,6 @@
+     Running benches/benchmarks.rs (target/release/deps/day02_bench-5a26a7741423262a)
+Timer precision: 80 ns
+day02_bench      fastest       │ slowest       │ median        │ mean          │ samples │ iters
+├─ bench_part_1  5.031 ms      │ 6.585 ms      │ 5.061 ms      │ 5.078 ms      │ 100     │ 100
+╰─ bench_part_2  407.5 ms      │ 434.2 ms      │ 411.1 ms      │ 411.7 ms      │ 100     │ 100
+

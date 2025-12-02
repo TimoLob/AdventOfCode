@@ -1,6 +1,6 @@
 use regex::Regex;
 
-#[derive(Debug)]
+#[derive(Debug,Clone,Copy)]
 enum Direction {
     Left,
     Right,
@@ -32,18 +32,25 @@ impl Lock {
             Direction::Left => -1,
             Direction::Right => 1,
         };
-        let mut zeroes = 0;
+        let mut zeroes = rot.steps/self.size;
+        let rot = Rotation {
+            steps: rot.steps % self.size,
+            dir: rot.dir
+        };
+        
+
         for _ in 0..rot.steps {
             self.current += sign;
             self.current = self.current.rem_euclid(self.size);
             if self.current == 0 {
                 zeroes += 1
+            }
             
         }
 
         zeroes
     }
-}
+    }
 
 pub fn part1(input: &str) -> String {
     let input = input.trim();
