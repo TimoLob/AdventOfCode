@@ -8,7 +8,7 @@ Generate a new project from the template:
 
 It will default to the current day if none is provided.
 
-## Progress 44/50
+## Progress 4/24
 
 | Day | Stars |
 | --- | ----- |
