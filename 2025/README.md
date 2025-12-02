@@ -13,7 +13,7 @@ It will default to the current day if none is provided.
 | Day | Stars |
 | --- | ----- |
 | 1   | ⭐⭐  |
-| 2   |       |
+| 2   | ⭐⭐  |
 | 3   |       |
 | 4   |       |
 | 5   |       |
