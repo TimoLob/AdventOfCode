@@ -1,3 +1,5 @@
+use fancy_regex::Regex;
+
 
 
 fn digit_count(n: u64) -> u32 {
@@ -20,6 +22,12 @@ fn is_num_twice(n: u64) -> bool {
     upper==lower
 }
 
+fn is_num_repeating(n:u64) -> bool {
+    let s = n.to_string();
+    let re = Regex::new(r"^(\d+)\1+$").expect("Invalid regex");
+    re.is_match(&s).expect("Regex error")
+}
+
 pub fn part1(input: &str) -> String {
     let input = input.trim();
     let ranges = input.split(",").map(|range| {
@@ -28,11 +36,9 @@ pub fn part1(input: &str) -> String {
     });
 
     let sames = ranges.map(|range| {
-        range.map(|number| {
-            if  is_num_twice(number) {
-                number
-            }
-            else {0}
+        range.filter(|number| {
+                is_num_twice(*number)
+
         }).sum::<u64>()
     }).sum::<u64>();
     sames.to_string()
@@ -43,7 +49,13 @@ pub fn part2(input: &str) -> String {
         let (first,second) = range.split_once("-").unwrap();
         first.parse::<u64>().unwrap()..(second.parse::<u64>().unwrap()+1)
     });
-    todo!()
+    let sames = ranges.map(|range| {
+        range.filter(|number| {
+                is_num_repeating(*number)
+
+        }).sum::<u64>()
+    }).sum::<u64>();
+    sames.to_string()
 }
 
 #[cfg(test)]
@@ -61,7 +73,7 @@ mod tests {
     fn test_example_part2() {
         let input = fs::read_to_string("example.txt").expect("Failed to read example.txt");
         let result = part2(&input);
-        assert_eq!(result, ""); // Replace with the actual expected result
+        assert_eq!(result, "4174379265"); // Replace with the actual expected result
     }
     #[test] 
     fn count_digits() {

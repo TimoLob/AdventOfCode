@@ -7,6 +7,7 @@ edition = "2024"
 
 [dependencies]
 divan = "0.1.21"
+fancy-regex = "0.16.2"
 
 
 [[bench]]
