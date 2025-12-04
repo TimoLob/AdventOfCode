@@ -16,6 +16,8 @@
 
 ## Benchmark
 Timer precision: 47 ns
+```
 day04_bench      fastest       │ slowest       │ median        │ mean          │ samples │ iters
 ├─ bench_part_1  1.223 ms      │ 2.218 ms      │ 1.237 ms      │ 1.251 ms      │ 100     │ 100
 ╰─ bench_part_2  3.137 ms      │ 3.793 ms      │ 3.18 ms       │ 3.188 ms      │ 100     │ 100
+```
