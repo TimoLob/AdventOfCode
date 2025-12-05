@@ -73,7 +73,7 @@ pub fn part2(input: &str) -> String {
                 None
             }
         ).collect::<Vec<RangeInclusive<u64>>>();
-        let mut result_range = range.clone();
+        let mut result_range = range;
         for or in overlapping {
             result_range = combine_overlapping_ranges(&or, &result_range);
             range_set.remove(&or);

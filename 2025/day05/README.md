@@ -26,8 +26,9 @@ Put all ranges in a Vec, for each ingredient check if it is in any range.
 ## Benchmark
 
 ```
-Timer precision: 18 ns
+Timer precision: 15 ns
 day05_bench      fastest       │ slowest       │ median        │ mean          │ samples │ iters
-├─ bench_part_1  68.61 µs      │ 159.7 µs      │ 74.11 µs      │ 80.79 µs      │ 100     │ 100
-╰─ bench_part_2  53.3 µs       │ 64.49 µs      │ 55.06 µs      │ 55.22 µs      │ 100     │ 100
+├─ bench_part_1  68.63 µs      │ 101.5 µs      │ 78.34 µs      │ 80.74 µs      │ 100     │ 100
+╰─ bench_part_2  52.48 µs      │ 60.66 µs      │ 54.73 µs      │ 54.77 µs      │ 100     │ 100
+
 ```
