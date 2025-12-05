@@ -1,0 +1,17 @@
+[package]
+name = "day05"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+divan = "0.1.21"
+miette = "7.6.0"
+nom = "8.0.0"
+
+
+[[bench]]
+name = "day05-bench"
+path = "benches/benchmarks.rs"
+harness = false
