@@ -15,8 +15,8 @@ Actually faster than part 1.
 
 ## Benchmark
 ```
-Timer precision: 46 ns
+Timer precision: 10 ns
 day06_bench      fastest       │ slowest       │ median        │ mean          │ samples │ iters
-├─ bench_part_1  46.51 µs      │ 96.58 µs      │ 47.4 µs       │ 50.8 µs       │ 100     │ 100
-╰─ bench_part_2  19.91 µs      │ 62.97 µs      │ 20.43 µs      │ 21.06 µs      │ 100     │ 100
+├─ bench_part_1  53.66 µs      │ 79.53 µs      │ 61.24 µs      │ 60.97 µs      │ 100     │ 100
+╰─ bench_part_2  18.44 µs      │ 34.91 µs      │ 19.11 µs      │ 20.51 µs      │ 100     │ 100
 ```

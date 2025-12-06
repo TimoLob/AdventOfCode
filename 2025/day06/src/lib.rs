@@ -88,7 +88,7 @@ fn parse_operators_count_digits(input: &str) -> (Vec<Operator>, Vec<usize>) {
 /// Parses input for part 2
 /// Returns a 2d vec of numbers (spaces are 0, there are no zeroes in the input),
 /// a vector of operators, and a vector of how many digits each operand in that equation has
-fn part2_parse(input: &str) -> (Vec<Vec<u64>>, Vec<Operator>, Vec<usize>) {
+fn part2_parse(input: &str) -> (Vec<Vec<u8>>, Vec<Operator>, Vec<usize>) {
     let lines = input.lines().collect::<Vec<&str>>();
     let num_lines = lines.len();
     let (ops, num_digits) = parse_operators_count_digits(lines[num_lines-1]);
@@ -96,25 +96,25 @@ fn part2_parse(input: &str) -> (Vec<Vec<u64>>, Vec<Operator>, Vec<usize>) {
     let numbers = (0..(num_lines-1)).map(|i| {
         lines[i].chars().map(|c| {
             if c.is_digit(10) {
-                c.to_digit(10).unwrap() as u64
+                c.to_digit(10).unwrap() as u8
             }
             else {
                 0
             }
         })
-    }.collect::<Vec<u64>>()).collect();
+    }.collect::<Vec<u8>>()).collect();
     return (numbers, ops, num_digits)
     
 }
 
 
 /// Reads a number at column `offset` from top to bottom. Zeros are ignored.
-fn build_number(offset:usize, numbers: &Vec<Vec<u64>>) -> u64 {
+fn build_number(offset:usize, numbers: &Vec<Vec<u8>>) -> u64 {
     let mut total = 0;
     for v in numbers.iter() {
         let d = v[offset];
         if d != 0 {
-            total = total*10 + d;
+            total = total*10 + d as u64;
         }
     }
     total
