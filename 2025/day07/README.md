@@ -6,10 +6,10 @@ Active lasers are represented by a bool array of size 150 (magic number since in
 1. For each line of splitters
     - Create new laser array of 150 zeroes (`[false; 150]`)
     - For each `(pos, universes)` in `lasers.enumerate()`
-        - Skip if `universes==0`
+        - Skip if `!universes` (name comes from part 2, here it's just a bool)
         - Binary Search current line of splitters for a splitter at `pos`
         - if splitter : `new_lasers[pos(+/-)1] = true`; increase split counter
-        - if not : `new_lasers[pos] += true` (Laser goes straight)
+        - if not : `new_lasers[pos] = true` (Laser goes straight)
     - active lasers := new lasers
 2. Return split counter
 
