@@ -34,10 +34,10 @@ Part 2 way faster than part 1 due to no hashing and instant lookput in the laser
 
 
 ```
-Timer precision: 32 ns
+Timer precision: 47 ns
 day07_bench      fastest       │ slowest       │ median        │ mean          │ samples │ iters
-├─ bench_part_1  131.6 µs      │ 148.1 µs      │ 134.9 µs      │ 135.5 µs      │ 100     │ 100
-╰─ bench_part_2  32.64 µs      │ 58.66 µs      │ 34.28 µs      │ 35.67 µs      │ 100     │ 100
+├─ bench_part_1  35.67 µs      │ 118.8 µs      │ 43.18 µs      │ 48.78 µs      │ 100     │ 100
+╰─ bench_part_2  32.32 µs      │ 57.89 µs      │ 35.12 µs      │ 36.4 µs       │ 100     │ 100
 
 ```
 
