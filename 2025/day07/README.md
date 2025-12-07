@@ -16,19 +16,27 @@
 
 ## Part 2
 
-Very similar to part 1. Except lasers are stored in a vector as a struct with `position` and `universes`. Universes is the number of universes that can reach that position.  
-Initially that vector is `{ position of S, 1}`.  
-When part 1 would insert a laser into the HashSet, instead check if that laser already exists in the next Vec of lasers. If it does, add the current lasers universe count to that. If not, add the new laser with the current universe count to the new laser vector.
-Return the sum of universes in the final vector.
+Active lasers are represented by an array of size 150 (magic number since input is ~142 chars long).
+Each entry corresponds to the number of universes for the active laser at that index. Initially this array is empty except for a `1` at index S.
+
+1. For each line of splitters
+    - Create new laser array of 150 zeroes (`[0; 150]`)
+    - For each `(pos, universes)` in `lasers.enumerate()`
+        - Skip if `universes==0`
+        - Binary Search current line of splitters for a splitter at `pos`
+        - if splitter : `new_lasers[pos(+/-)1] += universes`
+        - if not : `new_lasers[pos] += universes` (Laser goes straight)
+    - active lasers := new lasers
+2. Sum active lasers
 
 ## Benchmark
-Part 2 faster than part 1. Probably because a vector is faster than a HashSet at this sample size.
-I could probably improve the performance even more with some kind of sorted data structure for the lasers (for both part 1 and 2). Currently part 1 relies on a HashSet to keep uniqueness, part 2 searches the whole vector for every insertion.
-Since the input is only ~140 chars long per line, I could also use a fixed size vector for instant lookup.
+Part 2 way faster than part 1 due to no hashing and instant lookput in the lasers data structure.
+
 
 ```
-Timer precision: 10 ns
+Timer precision: 32 ns
 day07_bench      fastest       │ slowest       │ median        │ mean          │ samples │ iters
-├─ bench_part_1  131.9 µs      │ 544.8 µs      │ 159.3 µs      │ 202 µs        │ 100     │ 100
-╰─ bench_part_2  101.3 µs      │ 127.5 µs      │ 104.4 µs      │ 105.9 µs      │ 100     │ 100
+├─ bench_part_1  131.6 µs      │ 148.1 µs      │ 134.9 µs      │ 135.5 µs      │ 100     │ 100
+╰─ bench_part_2  32.64 µs      │ 58.66 µs      │ 34.28 µs      │ 35.67 µs      │ 100     │ 100
+
 ```

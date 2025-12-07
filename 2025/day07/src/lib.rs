@@ -34,29 +34,15 @@ pub fn part1(input: &str) -> String {
 
         }
         lasers = new_lasers;
-        //println!("{:?}",lasers);
 
     });
     num_splits.to_string()
 }
 
-#[derive(Debug,Clone, Copy)]
-struct Laser {
-    position:usize,
-    universes:usize
-}
-
-fn insert_laser(lasers : &mut Vec<Laser>, position : usize, universes:usize) {
-    let pos = lasers.iter().position(|l| l.position == position);
-    match pos {
-        Some(idx) => lasers[idx].universes+=universes,
-        None => lasers.push(Laser { position: position, universes: universes }),
-    };
-}
 
 
 pub fn part2(input: &str) -> String {
-    let input = input.trim();
+    const MAX_LINE_LENGTH:usize = 150; // Magic number. Should be larger or equal to the line length of input
     let input = input.trim();
     let mut lines = input.lines();
 
@@ -69,21 +55,26 @@ pub fn part2(input: &str) -> String {
         splitter_lines.push(splits);
         
     });
-    let mut lasers : Vec<Laser> = Vec::new();
-    lasers.push(Laser { position: start, universes: 1 });
+    
+    let mut lasers : Vec<usize> = vec![0; MAX_LINE_LENGTH];
+    lasers[start] =1;
+
     splitter_lines.iter().for_each(|splitters| {
         if splitters.is_empty() {
             return;
         }
-        let mut new_lasers:Vec<Laser> = Vec::new();
-        for &laser in lasers.iter() {
-            match splitters.binary_search(&laser.position) {
+        let mut new_lasers: Vec<usize> = vec![0; MAX_LINE_LENGTH];
+
+        for (pos,&universes) in lasers.iter().enumerate().filter(|(_,universes)| **universes!=0) {
+
+            // Splitters are sorted
+            match splitters.binary_search(&pos) {
                 Ok(_) => {
-                    insert_laser(&mut new_lasers, laser.position-1, laser.universes,);
-                    insert_laser(&mut new_lasers, laser.position+1, laser.universes,);
+                    new_lasers[pos-1] += universes;
+                    new_lasers[pos+1] += universes;
                 },
                 Err(_) => {
-                    insert_laser(&mut new_lasers, laser.position, laser.universes,);
+                    new_lasers[pos] += universes;
                 },
             }
 
@@ -91,7 +82,7 @@ pub fn part2(input: &str) -> String {
         lasers = new_lasers;
 
     });
-    lasers.iter().map(|l| l.universes).sum::<usize>().to_string()
+    lasers.iter().sum::<usize>().to_string()
     
 }
 
