@@ -1,6 +1,6 @@
-use std::collections::HashSet;
 
 pub fn part1(input: &str) -> String {
+    const MAX_LINE_LENGTH:usize = 150; // Magic number. Should be larger or equal to the line length of input
     let input = input.trim();
     let mut lines = input.lines();
 
@@ -13,23 +13,28 @@ pub fn part1(input: &str) -> String {
         splitter_lines.push(splits);
         
     });
-    //println!("{:?}",splitter_lines);
-    let mut lasers : HashSet<usize> = HashSet::new();
-    let mut num_splits =0;
-    lasers.insert(start);
+    
+    let mut lasers : Vec<bool> = vec![false; MAX_LINE_LENGTH];
+    lasers[start] = true;
+    let mut num_splits = 0;
     splitter_lines.iter().for_each(|splitters| {
         if splitters.is_empty() {
             return;
         }
-        let mut new_lasers:HashSet<usize> = HashSet::new();
-        for &laser in lasers.iter() {
-            match splitters.binary_search(&laser) {
+        let mut new_lasers: Vec<bool> = vec![false; MAX_LINE_LENGTH];
+
+        for (pos,&_) in lasers.iter().enumerate().filter(|(_,laser)| **laser) {
+
+            // Splitters are sorted
+            match splitters.binary_search(&pos) {
                 Ok(_) => {
-                    new_lasers.insert(laser-1);
-                    new_lasers.insert(laser+1);
-                    num_splits+=1;
+                    new_lasers[pos-1] = true;
+                    new_lasers[pos+1] = true;
+                    num_splits += 1;
                 },
-                Err(_) => {new_lasers.insert(laser);},
+                Err(_) => {
+                    new_lasers[pos] = true;
+                },
             }
 
         }

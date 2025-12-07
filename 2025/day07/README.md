@@ -1,22 +1,22 @@
 # Day 07
 ## Part 1
 
-1. Inititialize a Set of active Lasers with the X position of 'S'
-2. Parse the input into a `Vec<Vec<usize>>`. 
-    - For each line of input, create a `Vec<usize>` that contains the X position of splitters in that line.
-3. For each line of splitters
-    - Initialize a new empty set of next lasers
-    - For each active laser at position `l`
-        - Binary Search the current line of splitters for `l`
-        - If there is not splitter at that position : Copy `l` to the new set of lasers
-        - If there is one: Insert `l+1` and `l-1` into the new set of lasers; Increment split counter
-    - Replace active lasers with new lasers
-4. Return split counter
+Active lasers are represented by a bool array of size 150 (magic number since input is ~142 chars long).
+
+1. For each line of splitters
+    - Create new laser array of 150 zeroes (`[false; 150]`)
+    - For each `(pos, universes)` in `lasers.enumerate()`
+        - Skip if `universes==0`
+        - Binary Search current line of splitters for a splitter at `pos`
+        - if splitter : `new_lasers[pos(+/-)1] = true`; increase split counter
+        - if not : `new_lasers[pos] += true` (Laser goes straight)
+    - active lasers := new lasers
+2. Return split counter
 
 
 ## Part 2
 
-Active lasers are represented by an array of size 150 (magic number since input is ~142 chars long).
+Active lasers are represented by an usize array of size 150.
 Each entry corresponds to the number of universes for the active laser at that index. Initially this array is empty except for a `1` at index S.
 
 1. For each line of splitters
@@ -40,3 +40,17 @@ day07_bench      fastest       │ slowest       │ median        │ mean     
 ╰─ bench_part_2  32.64 µs      │ 58.66 µs      │ 34.28 µs      │ 35.67 µs      │ 100     │ 100
 
 ```
+
+## Part 1 (old)
+
+1. Inititialize a Set of active Lasers with the X position of 'S'
+2. Parse the input into a `Vec<Vec<usize>>`. 
+    - For each line of input, create a `Vec<usize>` that contains the X position of splitters in that line.
+3. For each line of splitters
+    - Initialize a new empty set of next lasers
+    - For each active laser at position `l`
+        - Binary Search the current line of splitters for `l`
+        - If there is not splitter at that position : Copy `l` to the new set of lasers
+        - If there is one: Insert `l+1` and `l-1` into the new set of lasers; Increment split counter
+    - Replace active lasers with new lasers
+4. Return split counter
