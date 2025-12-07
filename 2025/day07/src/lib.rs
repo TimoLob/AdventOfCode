@@ -81,8 +81,6 @@ pub fn part2(input: &str) -> String {
                 Ok(_) => {
                     insert_laser(&mut new_lasers, laser.position-1, laser.universes,);
                     insert_laser(&mut new_lasers, laser.position+1, laser.universes,);
-
-                    
                 },
                 Err(_) => {
                     insert_laser(&mut new_lasers, laser.position, laser.universes,);
