@@ -30,7 +30,6 @@ Each entry corresponds to the number of universes for the active laser at that i
 2. Sum active lasers
 
 ## Benchmark
-Part 2 way faster than part 1 due to no hashing and instant lookput in the lasers data structure.
 
 
 ```
