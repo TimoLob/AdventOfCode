@@ -46,6 +46,14 @@ struct Laser {
     universes:usize
 }
 
+fn insert_laser(lasers : &mut Vec<Laser>, position : usize, universes:usize) {
+    let pos = lasers.iter().position(|l| l.position == position);
+    match pos {
+        Some(idx) => lasers[idx].universes+=universes,
+        None => lasers.push(Laser { position: position, universes: universes }),
+    };
+}
+
 
 pub fn part2(input: &str) -> String {
     let input = input.trim();
@@ -61,7 +69,6 @@ pub fn part2(input: &str) -> String {
         splitter_lines.push(splits);
         
     });
-    //println!("{:?}",splitter_lines);
     let mut lasers : Vec<Laser> = Vec::new();
     lasers.push(Laser { position: start, universes: 1 });
     splitter_lines.iter().for_each(|splitters| {
@@ -72,23 +79,13 @@ pub fn part2(input: &str) -> String {
         for &laser in lasers.iter() {
             match splitters.binary_search(&laser.position) {
                 Ok(_) => {
-                    let pos = new_lasers.iter().position(|l| l.position == laser.position-1);
-                    match pos {
-                        Some(idx) => new_lasers[idx].universes+=laser.universes,
-                        None => new_lasers.push(Laser { position: laser.position-1, universes: laser.universes }),
-                    };
-                    let pos = new_lasers.iter().position(|l| l.position == laser.position+1);
-                    match pos {
-                        Some(idx) => new_lasers[idx].universes+=laser.universes,
-                        None => new_lasers.push(Laser { position: laser.position+1, universes: laser.universes }),
-                    };
+                    insert_laser(&mut new_lasers, laser.position-1, laser.universes,);
+                    insert_laser(&mut new_lasers, laser.position+1, laser.universes,);
+
+                    
                 },
                 Err(_) => {
-                    let pos = new_lasers.iter().position(|l| l.position == laser.position);
-                    match pos {
-                        Some(idx) => new_lasers[idx].universes+=laser.universes,
-                        None => new_lasers.push(Laser { position: laser.position, universes: laser.universes }),
-                    };
+                    insert_laser(&mut new_lasers, laser.position, laser.universes,);
                 },
             }
 
