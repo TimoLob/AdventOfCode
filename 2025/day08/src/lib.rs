@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use glam::{I64Vec3, IVec3};
+use glam::I64Vec3;
 
 type JunctionBox = I64Vec3;
 type Circuit = HashSet<JunctionBox>;
@@ -42,15 +42,16 @@ where
     top
 }
 
-fn connect_and_merge_circuits(junction_boxes: &Vec<JunctionBox>, n : usize) -> usize {
-    
-    let mut circuits = junction_boxes.iter().map(|junctionbox| {
-        let mut c = Circuit::new();
-        c.insert(*junctionbox);
-        c
+fn parse(input: &str) -> Vec<JunctionBox> {
+    let input = input.trim();
 
-    }).collect::<Vec<Circuit>>();
+    input.lines().map(|line| {
+        let splits = line.splitn(3, ',').map(|s| s.parse::<i64>().unwrap()).collect::<Vec<i64>>();
+        JunctionBox::from_slice(splits.as_slice())
+    }).collect::<Vec<JunctionBox>>()
+}
 
+fn pairwise_distances(junction_boxes: &[JunctionBox]) -> Vec<Distance> {
     let mut distances : Vec<Distance> = Vec::with_capacity(junction_boxes.len()*junction_boxes.len());
     for i in 0..junction_boxes.len() {
         for j in (i+1)..junction_boxes.len() {
@@ -58,24 +59,36 @@ fn connect_and_merge_circuits(junction_boxes: &Vec<JunctionBox>, n : usize) -> u
         }
     }
     distances.sort_by_key(|a| a.dist);
-    //distances.iter().for_each(|d| {
-    //    println!("{:?}->{:?} = {}",junction_boxes[d.i1],junction_boxes[d.i2], d.dist);
-    //});
+    distances
+}
+
+// ---------- Part 1 ----------------
+
+fn connect_and_merge_circuits(junction_boxes: &Vec<JunctionBox>, n : usize) -> usize {
+    
+    let distances = pairwise_distances(&junction_boxes);
+
+    let mut circuits = junction_boxes.iter().map(|junctionbox| {
+        let mut c = Circuit::new();
+        c.insert(*junctionbox);
+        c
+
+    }).collect::<Vec<Circuit>>();
 
 
     for i in 0..n {
         let d = &distances[i];
         let a = junction_boxes[d.i1];
         let b = junction_boxes[d.i2];
-        let set_a = circuits.iter_mut().position(|s| s.contains(&a)).expect("All junction boxes should be part of a circuit.");
-        let set_b = circuits.iter().position(|s| s.contains(&b)).expect("All junction boxes should be part of a circuit.");
-        if set_a == set_b {
+        let set_a_idx = circuits.iter_mut().position(|s| s.contains(&a)).expect("All junction boxes should be part of a circuit.");
+        let set_b_idx = circuits.iter().position(|s| s.contains(&b)).expect("All junction boxes should be part of a circuit.");
+        if set_a_idx == set_b_idx {
             continue;
         }
-        let (keep, remove) = if set_a < set_b {
-            (set_a, set_b)
+        let (keep, remove) = if set_a_idx < set_b_idx {
+            (set_a_idx, set_b_idx)
         } else {
-            (set_b, set_a)
+            (set_b_idx, set_a_idx)
         };
         {
             let (left, right) = circuits.split_at_mut(remove);
@@ -89,24 +102,17 @@ fn connect_and_merge_circuits(junction_boxes: &Vec<JunctionBox>, n : usize) -> u
 }
 
 
+
 pub fn part1(input: &str) -> String {
-    let input = input.trim();
-    let junction_boxes = input.lines().map(|line| {
-        let splits = line.splitn(3, ',').map(|s| s.parse::<i64>().unwrap()).collect::<Vec<i64>>();
-        JunctionBox::from_slice(splits.as_slice())
-    }).collect::<Vec<JunctionBox>>();
-
-    
+    let junction_boxes = parse(input);
     connect_and_merge_circuits(&junction_boxes, 1000).to_string()
-    
 }
-pub fn part2(input: &str) -> String {
-    let input = input.trim();
-    let junction_boxes = input.lines().map(|line| {
-        let splits = line.splitn(3, ',').map(|s| s.parse::<i64>().unwrap()).collect::<Vec<i64>>();
-        JunctionBox::from_slice(splits.as_slice())
-    }).collect::<Vec<JunctionBox>>();
 
+
+// ---------- Part 2 ----------------
+pub fn part2(input: &str) -> String {
+    let junction_boxes = parse(input);
+    let distances = pairwise_distances(&junction_boxes);
 
     let mut circuits = junction_boxes.iter().map(|junctionbox| {
         let mut c = Circuit::new();
@@ -115,27 +121,19 @@ pub fn part2(input: &str) -> String {
 
     }).collect::<Vec<Circuit>>();
 
-    let mut distances : Vec<Distance> = Vec::with_capacity(junction_boxes.len()*junction_boxes.len());
-    for i in 0..junction_boxes.len() {
-        for j in (i+1)..junction_boxes.len() {
-            distances.push(Distance::from(junction_boxes[i], i, junction_boxes[j], j));
-        }
-    }
-    distances.sort_by_key(|a| a.dist);
-
     for i in 0..distances.len() {
         let d = &distances[i];
         let a = junction_boxes[d.i1];
         let b = junction_boxes[d.i2];
-        let set_a = circuits.iter_mut().position(|s| s.contains(&a)).expect("All junction boxes should be part of a circuit.");
-        let set_b = circuits.iter().position(|s| s.contains(&b)).expect("All junction boxes should be part of a circuit.");
-        if set_a == set_b {
+        let set_a_idx = circuits.iter_mut().position(|s| s.contains(&a)).expect("All junction boxes should be part of a circuit.");
+        let set_b_idx = circuits.iter().position(|s| s.contains(&b)).expect("All junction boxes should be part of a circuit.");
+        if set_a_idx == set_b_idx {
             continue;
         }
-        let (keep, remove) = if set_a < set_b {
-            (set_a, set_b)
+        let (keep, remove) = if set_a_idx < set_b_idx {
+            (set_a_idx, set_b_idx)
         } else {
-            (set_b, set_a)
+            (set_b_idx, set_a_idx)
         };
         {
             let (left, right) = circuits.split_at_mut(remove);
@@ -148,7 +146,7 @@ pub fn part2(input: &str) -> String {
             return (a.x * b.x).to_string();
         }
     }
-    panic!()
+    panic!("How did we get here?")
 }
 
 #[cfg(test)]
@@ -158,12 +156,9 @@ mod tests {
 
     #[test]
     fn test_example() {
+        // Copy of part1 function, except different n
         let input = fs::read_to_string("example.txt").expect("Failed to read example.txt");
-        let input = input.trim();
-        let junction_boxes = input.lines().map(|line| {
-            let splits = line.splitn(3, ',').map(|s| s.parse::<i64>().unwrap()).collect::<Vec<i64>>();
-            JunctionBox::from_slice(splits.as_slice())
-        }).collect::<Vec<JunctionBox>>();
+        let junction_boxes = parse(&input);
 
         
         let result = connect_and_merge_circuits(&junction_boxes, 10).to_string();
