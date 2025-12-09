@@ -20,7 +20,7 @@ It will default to the current day if none is provided.
 | 6   | ⭐⭐  |
 | 7   | ⭐⭐  |
 | 8   | ⭐⭐  |
-| 9   |       |
+| 9   | ⭐⭐  |
 | 10  |       |
 | 11  |       |
 | 12  |       |

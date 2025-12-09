@@ -162,12 +162,12 @@ mod tests {
 
         
         let result = connect_and_merge_circuits(&junction_boxes, 10).to_string();
-        assert_eq!(result, "40"); // Replace with the actual expected result
+        assert_eq!(result, "40"); 
     }
     #[test]
     fn test_example_part2() {
         let input = fs::read_to_string("example.txt").expect("Failed to read example.txt");
         let result = part2(&input);
-        assert_eq!(result, "25272"); // Replace with the actual expected result
+        assert_eq!(result, "25272"); 
     }
 }
