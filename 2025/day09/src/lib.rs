@@ -1,8 +1,5 @@
-use std::{collections::HashMap, ops::RangeInclusive};
-
 use glam::I64Vec2;
 use memoize::memoize;
-use rayon::prelude::*;
 fn parse(input : &str) -> Vec<I64Vec2> {
     input.lines().map(|line| { 
         let split = line.split_once(',').unwrap();
@@ -104,20 +101,26 @@ fn point_on_segment(p: I64Vec2, a: I64Vec2, b: I64Vec2) -> bool {
     true
 }
 
-
-
-pub fn part2(input: &str) -> String {
-    let input = input.trim();
-    let mut coords: Vec<I64Vec2> = parse(input);
-
+/// Compress coordinate space
+/// 1. Normalize coordinates such that the minimum is (0/0)
+/// 2. Find all used X and Y coordinates
+/// 3. Map coordinates to their index of use
+/// 
+/// E.g. if X coordinates 1,3, 6,7 are used those will be mapped as
+/// 1 => 0
+/// 3 => 1
+/// 6 => 2
+/// 7 => 3
+/// 
+/// This keeps relative ordering but changes distances. We will use this compressed space to test whether they are in the polygon or not
+fn compress_vec(coords: &Vec<I64Vec2>) -> Vec<I64Vec2> {
+    let mut coords = coords.clone();
     let min_x = coords.iter().map(|v|v.x).min().unwrap();
     let min_y = coords.iter().map(|v|v.y).min().unwrap();
     for coord in coords.iter_mut() {
         coord.x -= min_x;
         coord.y -= min_y;
     }
-    let min_x = coords.iter().map(|v|v.x).min().unwrap();
-    let min_y = coords.iter().map(|v|v.y).min().unwrap();
     let max_x: i64 = coords.iter().map(|v|v.x).max().unwrap();
     let max_y = coords.iter().map(|v|v.y).max().unwrap();
     let mut used_x_coords = vec![false;(max_x+1) as usize];
@@ -126,39 +129,53 @@ pub fn part2(input: &str) -> String {
         used_x_coords[v.x as usize] = true;
         used_y_coords[v.y as usize] = true;
     }
+    let x_coordinate_map = used_x_coords.iter().enumerate()
+    .filter(|(_idx,b)| **b).enumerate().map(|(_i1, (i2,_))| i2).collect::<Vec<usize>>();
+    let y_coordinate_map = used_y_coords.iter().enumerate()
+    .filter(|(_idx,b)| **b).enumerate().map(|(_i1, (i2,_))| i2).collect::<Vec<usize>>();
+
+
+    for v in coords.iter_mut() {
+        v.x = x_coordinate_map.iter().position(|&x| x as i64 == v.x).unwrap() as i64;
+        v.y = y_coordinate_map.iter().position(|&y| y as i64 == v.y).unwrap() as i64;
+
+    }
+    coords
+}
+
+
+pub fn part2(input: &str) -> String {
+    let input = input.trim();
+    let coords: Vec<I64Vec2> = parse(input);
+
+    let comprossed_coords = compress_vec(&coords);
 
     let mut largest_area = 0;
+
     for i in 0..coords.len() {
-        println!("{}/{}",i,coords.len());
         for j in (i+1)..coords.len() {
-            println!(":{}/{}",j,coords.len());
 
-            let a = coords[i];
-            let b = coords[j];
-            let area = rect_area(&a, &b);
+            let ca = comprossed_coords[i];
+            let cb = comprossed_coords[j];
+            let area = rect_area(&coords[i], &coords[j]); // Use real coords for area calculation
 
-            if area < largest_area {
+            if area < largest_area { // If rectangle spanned by corners isn't a canditate, don't bother checking if it is legal
                 continue;
             }
-
-            let all_inside = (a.x.min(b.x)..=(a.x.max(b.x))).all(|x| {
-
-                (a.y.min(b.y)..=(a.y.max(b.y))).all(|y| {
-                    if used_x_coords[x as usize] && used_y_coords[y as usize] {
-                        point_in_polygon(I64Vec2 { x, y }, &coords)
-                    }
-                    else {
-                        true
-                    }
+            // Check all points in the rectangle
+            let all_inside = (ca.x.min(cb.x)..=(ca.x.max(cb.x))).all(|x| {
+                (ca.y.min(cb.y)..=(ca.y.max(cb.y))).all(|y| {
+                    point_in_polygon(I64Vec2 { x, y }, &comprossed_coords)
                 })
 
             });
             if all_inside {
                 largest_area = area;
+
             }
         }
     }
-    
+
     largest_area.to_string() 
 }
 
