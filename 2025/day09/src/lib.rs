@@ -112,7 +112,7 @@ fn point_on_segment(p: I64Vec2, a: I64Vec2, b: I64Vec2) -> bool {
 /// 6 => 2
 /// 7 => 3
 /// 
-/// This keeps relative ordering but changes distances. We will use this compressed space to test whether they are in the polygon or not
+/// This keeps relative ordering but distorts distances. We will use this compressed space to test whether points are in the polygon or not
 fn compress_vec(coords: &Vec<I64Vec2>) -> Vec<I64Vec2> {
     let mut coords = coords.clone();
     let min_x = coords.iter().map(|v|v.x).min().unwrap();

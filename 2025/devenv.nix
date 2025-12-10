@@ -15,6 +15,8 @@
   packages = [ 
     pkgs.git 
     pkgs.openssl
+    pkgs.z3
+    #pkgs.libclang
   ];
 
   # https://devenv.sh/languages/
@@ -26,6 +28,7 @@
 
   # https://devenv.sh/processes/
   processes.cargo-watch.exec = "cargo-watch";
+  env.LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
 
   # https://devenv.sh/services/
   # services.postgres.enable = true;

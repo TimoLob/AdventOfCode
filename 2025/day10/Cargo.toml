@@ -8,6 +8,7 @@ edition = "2024"
 [dependencies]
 divan = "0.1.21"
 nom = "8.0.0"
+z3 = "0.19.5"
 
 
 [[bench]]

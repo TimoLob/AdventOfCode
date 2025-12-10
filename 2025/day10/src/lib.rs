@@ -1,7 +1,8 @@
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::VecDeque;
 
-use nom::{IResult, Parser, branch::alt, bytes::complete::tag, character::complete::{self, char, line_ending, space0, space1}, combinator::value, multi::{many1, separated_list1}, sequence::{self, delimited, preceded, tuple}};
+use nom::{IResult, Parser, branch::alt, bytes::complete::tag, character::complete::{self, char, line_ending, space0, space1}, combinator::value, multi::{many1, separated_list1}, sequence::delimited};
+use z3::{Optimize, ast::Int};
 
 
 type Button = Vec<usize>;
@@ -77,59 +78,35 @@ fn solve_line(line:&Line) -> usize {
 }
 
 
-#[derive(Debug)]
-struct State2 {
-    steps: usize,
-    joltage : Vec<Joltage>
-}
 
-impl State2 {
-    fn from_button_press(state: &Self, b:&Button) -> Self {
-        let mut new_joltages = state.joltage.clone();
-        b.iter().for_each(|&p| new_joltages[p] += 1);
-
-        State2 { steps: state.steps+1, joltage: new_joltages }
-    }
-}
 
 fn solve_line_2(line:&Line) -> usize {
 
-    let mut queue :VecDeque<State2> = VecDeque::new();
-    let mut seen_states : HashSet<Vec<Joltage>> = HashSet::new();
-    queue.push_back(State2 { steps: 0, joltage: vec![0;line.joltage_req.len()] });
-    while !queue.is_empty() {
-        let current = queue.pop_front().unwrap();
-        for button in line.buttons.iter() {
-            let new_state = State2::from_button_press(&current, button);
-
-            if seen_states.contains(&new_state.joltage) {
-                continue;
-            }
-            let mut all_equal = true;
-            let mut still_possible = true;
-            for i in 0..new_state.joltage.len() {
-                if new_state.joltage[i] != line.joltage_req[i] {
-                    all_equal = false;
-                }
-                if new_state.joltage[i] > line.joltage_req[i] {
-                    still_possible = false;
-                    break;
-                }
-                
-            }
-            if all_equal {
-                return new_state.steps;
-            }
-            if still_possible {
-                println!("{:?} -> {:?}",new_state,line.joltage_req);
-                queue.push_back(new_state);
-                seen_states.insert(current.joltage.clone());
-
-            }
-            
-        }
+    let solver = Optimize::new();
+    let mut num_button_presses: Vec<Int> = Vec::new();
+    for i in 0..line.buttons.len() {
+        let button = Int::fresh_const(&format!("B{}",i));
+        solver.assert(&button.ge(0));
+        num_button_presses.push(button);
     }
-    panic!()
+    for (idx, joltage) in line.joltage_req.iter().enumerate() {
+        let relevant_button_idx = 
+        line.buttons.iter().enumerate()
+            .filter(|(_,b)| {
+                b.contains(&idx)
+            });
+        let relevant_buttons = relevant_button_idx.map(|(i,_)| num_button_presses[i].clone()).collect::<Vec<Int>>();
+        let total = Int::add(&relevant_buttons);
+            solver.assert(&total.eq(*joltage as i64));
+
+    }
+    solver.minimize(&Int::add(&num_button_presses));
+    solver.check(&[]);
+    //println!("{:?}",solver);
+    let model = solver.get_model().unwrap();
+    let r:u64 = num_button_presses.iter().map(|var| model.eval(var, true).unwrap().as_u64().unwrap()).sum();
+
+    r as usize
 }
 
 
