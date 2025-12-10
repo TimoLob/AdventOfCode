@@ -1,9 +1,16 @@
 
 use std::collections::VecDeque;
 
-use nom::{IResult, Parser, branch::alt, bytes::complete::tag, character::complete::{self, char, line_ending, space0, space1}, combinator::value, multi::{many1, separated_list1}, sequence::delimited};
+use nom::{
+    IResult, 
+    Parser, 
+    branch::alt, 
+    bytes::complete::tag, 
+    character::complete::{self, char, line_ending, space0, space1}, 
+    combinator::value, multi::{many1, separated_list1}, 
+    sequence::delimited
+};
 use z3::{Optimize, ast::Int};
-
 
 type Button = Vec<usize>;
 type Joltage = usize;
@@ -19,7 +26,6 @@ impl Line {
     fn new(target: Vec<bool>,buttons:Vec<Vec<usize>>,joltage_req:Vec<usize>) -> Self {
         Line { target, buttons, joltage_req }
     }
-    
 }
 
 fn parse_lights(input: &str) -> IResult<&str, Vec<bool>> {
@@ -60,8 +66,9 @@ impl State {
     }
 }
 
+// Simple BFS until desired state
 fn solve_line(line:&Line) -> usize {
-
+    
     let mut queue :VecDeque<State> = VecDeque::new();
     queue.push_back(State { steps: 0, lights: vec![false;line.target.len()] });
     while !queue.is_empty() {
@@ -78,18 +85,16 @@ fn solve_line(line:&Line) -> usize {
 }
 
 
-
-
 fn solve_line_2(line:&Line) -> usize {
-
-    let solver = Optimize::new();
+    let optimizer = Optimize::new();
     let mut num_button_presses: Vec<Int> = Vec::new();
     for i in 0..line.buttons.len() {
         let button = Int::fresh_const(&format!("B{}",i));
-        solver.assert(&button.ge(0));
+        optimizer.assert(&button.ge(0));
         num_button_presses.push(button);
     }
     for (idx, joltage) in line.joltage_req.iter().enumerate() {
+        // For each joltage, find out which buttons increase it
         let relevant_button_idx = 
         line.buttons.iter().enumerate()
             .filter(|(_,b)| {
@@ -97,13 +102,14 @@ fn solve_line_2(line:&Line) -> usize {
             });
         let relevant_buttons = relevant_button_idx.map(|(i,_)| num_button_presses[i].clone()).collect::<Vec<Int>>();
         let total = Int::add(&relevant_buttons);
-            solver.assert(&total.eq(*joltage as i64));
+        optimizer.assert(&total.eq(*joltage as i64)); // Assert that the numbers that increase joltage[i] are pressed exactly enough
 
     }
-    solver.minimize(&Int::add(&num_button_presses));
-    solver.check(&[]);
+    optimizer.minimize(&Int::add(&num_button_presses)); // Minimize the number of button presses
+    optimizer.check(&[]); // Solve
     //println!("{:?}",solver);
-    let model = solver.get_model().unwrap();
+    // Extract solution
+    let model = optimizer.get_model().unwrap();
     let r:u64 = num_button_presses.iter().map(|var| model.eval(var, true).unwrap().as_u64().unwrap()).sum();
 
     r as usize
