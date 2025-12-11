@@ -1,7 +1,7 @@
-use std::{collections::HashMap, hash::RandomState};
+use std::collections::HashMap;
 
 use nom::{IResult, Parser, bytes::complete::tag, character::complete::{alpha1, line_ending, space1}, multi::separated_list1, sequence::separated_pair};
-use petgraph::{Graph, algo::{self, toposort}, graph::DiGraph};
+use petgraph::{Graph, algo::toposort, graph::DiGraph};
 
 #[derive(Debug)]
 struct Line {
@@ -46,7 +46,7 @@ pub fn part1(input: &str) -> String {
     
     let start = *map.get(&"you".to_string()).unwrap();
     let target = *map.get(&"out".to_string()).unwrap();
-    let paths = algo::all_simple_paths::<Vec<_>, _, RandomState>(&g, start, target, 0, None).count();
+    let paths = count_paths_dag(&g, start,target);
     paths.to_string()
 }
 
